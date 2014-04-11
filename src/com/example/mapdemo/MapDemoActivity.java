@@ -139,9 +139,15 @@ public class MapDemoActivity extends FragmentActivity implements
 		eventLocations = new ArrayList<LocationUpdate>();
 		// Querying Parse for location updates goes here:
 		// eventLocations.addAll(result), etc
-		LocationUpdate testLoc = new LocationUpdate(37.771270, -122.410478, BAR_CRAWL_KEY);
-		testLoc.setEventId("vgcwoA6zrk");
-		eventLocations.add(testLoc);
+		LocationUpdate testLoc1 = new LocationUpdate(37.771270, -122.410478, BAR_CRAWL_KEY);
+		LocationUpdate testLoc2 = new LocationUpdate(37.778597, -122.432107, BIKE_KEY);
+		LocationUpdate testLoc3 = new LocationUpdate(37.778326, -122.417601, HIKE_KEY);
+		testLoc1.setEventId("vgcwoA6zrk");
+		testLoc2.setEventId("vgcwoA6zrk_2");
+		testLoc3.setEventId("vgcwoA6zrk_3");
+		eventLocations.add(testLoc1);
+		eventLocations.add(testLoc2);
+		eventLocations.add(testLoc3);
 		
 		for (LocationUpdate l : eventLocations) {
 			Marker mapMarker = map.addMarker(new MarkerOptions()
