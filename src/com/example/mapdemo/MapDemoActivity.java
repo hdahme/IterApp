@@ -1,5 +1,6 @@
 package com.example.mapdemo;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -9,6 +10,8 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -31,6 +34,8 @@ public class MapDemoActivity extends FragmentActivity implements
 	private SupportMapFragment mapFragment;
 	private GoogleMap map;
 	private LocationClient mLocationClient;
+	
+	public static final int NEW_EVENT_CODE = 100;
 	/*
 	 * Define a request code to send to Google Play services This code is
 	 * returned in Activity.onActivityResult
@@ -65,7 +70,23 @@ public class MapDemoActivity extends FragmentActivity implements
 	    .title("Hello")
 	    //.snippet("Hours: " + listing.hoursOpen + " - "                                                
 	    //    + listing.hoursClose)
-	    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher)));
+	    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_hike)));
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+		getMenuInflater().inflate(R.menu.map_demo, menu);
+		//getActionBar().setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+		//getActionBar().setCustomView(R.layout.action_bar);
+		return true;
+	}
+	
+	public void onAddEventClick(MenuItem mi) {
+		Intent i = new Intent(MapDemoActivity.this, EventsActivity.class);
+        startActivityForResult(i, NEW_EVENT_CODE);
 	}
 
 	/*
