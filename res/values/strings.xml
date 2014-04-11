@@ -12,5 +12,7 @@
     <string name="sign_up_label">Sign Up</string>
     <string name="login_label">Login</string>
     <string name="title_map_demo_activity">MapDemoActivity</string>
+    <string name="title_activity_events">EventsActivity</string>
+    <string name="event_title_placeholder">Event Title</string>
 
 </resources>
