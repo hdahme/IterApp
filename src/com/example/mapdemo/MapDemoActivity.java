@@ -1,5 +1,7 @@
 package com.example.mapdemo;
 
+import java.util.List;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
@@ -7,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -14,6 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.mapdemo.fragments.EventsListFragment;
+import com.example.mapdemo.models.Event;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -26,6 +31,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 
 public class MapDemoActivity extends FragmentActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
@@ -34,8 +42,11 @@ public class MapDemoActivity extends FragmentActivity implements
 	private SupportMapFragment mapFragment;
 	private GoogleMap map;
 	private LocationClient mLocationClient;
+	private int fetchEventInterval = 5000; //5 seconds
+	private Handler fetchEventHandler;
 	
 	public static final int NEW_EVENT_CODE = 100;
+	public static List<Event> eventList;
 	/*
 	 * Define a request code to send to Google Play services This code is
 	 * returned in Activity.onActivityResult
@@ -60,11 +71,37 @@ public class MapDemoActivity extends FragmentActivity implements
 			Toast.makeText(this, "Error - Map Fragment was null!!", Toast.LENGTH_SHORT).show();
 		}
 		
-		pollServerForNewLocations();
-
+		fetchEventHandler = new Handler();
+		startRepeatingTask();
 	}
 	
-	private void pollServerForNewLocations() {
+	Runnable fetchEvents = new Runnable() {
+		public void run() {
+			fetchEventLocations();
+			fetchEventHandler.postDelayed(fetchEvents, fetchEventInterval);
+		}
+	};
+	
+	private void startRepeatingTask() {
+		fetchEvents.run();
+	}
+	
+	private void stopRepeatingTask() {
+		fetchEventHandler.removeCallbacks(fetchEvents);
+	}
+	
+	public void fetchEventLocations() {
+		ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
+        query.findInBackground(new FindCallback<Event>() {
+            public void done(List<Event> itemList, ParseException e) {
+                if (e == null) {
+                    MapDemoActivity.eventList = itemList;
+                } else {
+                    Log.d("item", "Error: " + e.getMessage());
+                }
+            }
+        });
+        
 		Marker mapMarker = map.addMarker(new MarkerOptions()
 	    .position(new LatLng(0, 0))                                                      
 	    .title("Hello")

@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.example.mapdemo.EventsAdapter;
+import com.example.mapdemo.MapDemoActivity;
 import com.example.mapdemo.R;
 import com.example.mapdemo.models.Event;
 import com.parse.FindCallback;
@@ -42,15 +43,6 @@ public class EventsListFragment extends Fragment {
     }
 
     private void getEvents() {
-        ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
-        query.findInBackground(new FindCallback<Event>() {
-            public void done(List<Event> itemList, ParseException e) {
-                if (e == null) {
-                    EventsListFragment.this.adapter.addAll(itemList);
-                } else {
-                    Log.d("item", "Error: " + e.getMessage());
-                }
-            }
-        });
+    	EventsListFragment.this.adapter.addAll(MapDemoActivity.eventList);
     }
 }
