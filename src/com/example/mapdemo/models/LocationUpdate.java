@@ -2,7 +2,7 @@ package com.example.mapdemo.models;
 
 import java.io.Serializable;
 
-public class Location implements Serializable {
+public class LocationUpdate implements Serializable {
     private static final long serialVersionUID = 9164529005280807568L;
 
     private double lat;
@@ -10,10 +10,12 @@ public class Location implements Serializable {
 	private int timestamp;
 	private int userId;
 	private int eventId;
+	private String type;
 	
-	public Location(double lat, double lng) {
+	public LocationUpdate(double lat, double lng, String type) {
 		this.lat = lat;
 		this.lng = lng;
+		this.type = type;
 	}
 	public double getLat() {
 		return lat;
@@ -29,6 +31,12 @@ public class Location implements Serializable {
 	}
 	public int getEventId() {
 		return eventId;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 
 }

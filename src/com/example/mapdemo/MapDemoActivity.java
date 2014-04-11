@@ -1,6 +1,9 @@
 package com.example.mapdemo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -19,6 +22,7 @@ import android.widget.Toast;
 
 import com.example.mapdemo.fragments.EventsListFragment;
 import com.example.mapdemo.models.Event;
+import com.example.mapdemo.models.LocationUpdate;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -46,7 +50,13 @@ public class MapDemoActivity extends FragmentActivity implements
 	private Handler fetchEventHandler;
 	
 	public static final int NEW_EVENT_CODE = 100;
+	public static final String HIKE_KEY = "hike";
+	public static final String BIKE_KEY = "bike";
+	public static final String BAR_CRAWL_KEY = "bar_crawl";
+	
+	public static final Map<String, Integer> eventTypeMap = new HashMap<String, Integer>();
 	public static List<Event> eventList;
+	public static List<LocationUpdate> eventLocations;
 	/*
 	 * Define a request code to send to Google Play services This code is
 	 * returned in Activity.onActivityResult
@@ -57,6 +67,14 @@ public class MapDemoActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) { 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_demo_activity);
+		
+		// Initialize the mapping of event type to drawable resource
+		if (MapDemoActivity.eventTypeMap.size() == 0) {
+			MapDemoActivity.eventTypeMap.put(BIKE_KEY, R.drawable.ic_bike);
+			MapDemoActivity.eventTypeMap.put(HIKE_KEY, R.drawable.ic_hike);
+			MapDemoActivity.eventTypeMap.put(BAR_CRAWL_KEY, R.drawable.ic_beer);
+		}
+		
 		mLocationClient = new LocationClient(this, this, this);
 		mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
 		if (mapFragment != null) {
@@ -73,6 +91,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		
 		fetchEventHandler = new Handler();
 		startRepeatingTask();
+		fetchEventData();
 	}
 	
 	Runnable fetchEvents = new Runnable() {
@@ -90,7 +109,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		fetchEventHandler.removeCallbacks(fetchEvents);
 	}
 	
-	public void fetchEventLocations() {
+	public void fetchEventData() {
 		ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
         query.findInBackground(new FindCallback<Event>() {
             public void done(List<Event> itemList, ParseException e) {
@@ -101,13 +120,23 @@ public class MapDemoActivity extends FragmentActivity implements
                 }
             }
         });
-        
-		Marker mapMarker = map.addMarker(new MarkerOptions()
-	    .position(new LatLng(0, 0))                                                      
-	    .title("Hello")
-	    //.snippet("Hours: " + listing.hoursOpen + " - "                                                
-	    //    + listing.hoursClose)
-	    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_hike)));
+	}
+	
+	public void fetchEventLocations() {
+		eventLocations = new ArrayList<LocationUpdate>();
+		// Querying Parse for location updates goes here:
+		// eventLocations.addAll(result), etc
+		eventLocations.add(new LocationUpdate(37.771270, -122.410478, BAR_CRAWL_KEY));
+		
+		for (LocationUpdate l : eventLocations) {
+			Marker mapMarker = map.addMarker(new MarkerOptions()
+		    .position(new LatLng(l.getLat(), l.getLng()))                                                      
+		    .title("Hello")
+		    //.snippet("Hours: " + listing.hoursOpen + " - "                                                
+		    //    + listing.hoursClose)
+		    .icon(BitmapDescriptorFactory.fromResource(
+		    		MapDemoActivity.eventTypeMap.get(l.getType()))));
+		}
 	}
 	
 	@Override
