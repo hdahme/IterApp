@@ -3,8 +3,9 @@ package com.example.mapdemo.models;
 import java.io.Serializable;
 
 public class Location implements Serializable {
-	
-	private double lat;
+    private static final long serialVersionUID = 9164529005280807568L;
+
+    private double lat;
 	private double lng;
 	private int timestamp;
 	private int userId;
