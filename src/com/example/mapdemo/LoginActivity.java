@@ -2,6 +2,7 @@ package com.example.mapdemo;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +15,8 @@ import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
 public class LoginActivity extends Activity {
+    public static final String LOGIN_PREFS_NAME = "LoginPrefs";
+
     private EditText etUsername;
     private EditText etPassword;
     private EditText etEmail;
@@ -25,6 +28,12 @@ public class LoginActivity extends Activity {
 		this.etUsername = (EditText) findViewById(R.id.etUsername);
 		this.etPassword = (EditText) findViewById(R.id.etPassword);
 		this.etEmail = (EditText) findViewById(R.id.etEmail);
+
+		// Restore login preferences
+	    SharedPreferences loginPrefs = getSharedPreferences(LoginActivity.LOGIN_PREFS_NAME, 0);
+	    this.etUsername.setText(loginPrefs.getString("username", ""));
+	    this.etPassword.setText(loginPrefs.getString("password", ""));
+	    this.etEmail.setText(loginPrefs.getString("email", ""));
 
 		ParseAnalytics.trackAppOpened(getIntent());
 	}
@@ -48,6 +57,14 @@ public class LoginActivity extends Activity {
 	    user.signUpInBackground(new SignUpCallback() {
 	        public void done(ParseException e) {
 	            if (e == null) {
+	                // store login prefs on successful sign up
+	                SharedPreferences settings = getSharedPreferences(LoginActivity.LOGIN_PREFS_NAME, 0);
+	                SharedPreferences.Editor editor = settings.edit();
+	                editor.putString("username", LoginActivity.this.etUsername.getText().toString());
+	                editor.putString("password", LoginActivity.this.etPassword.getText().toString());
+	                editor.putString("email", LoginActivity.this.etEmail.getText().toString());
+	                editor.commit();
+
 	                // Hooray! Let them use the app now.
 	                Log.d("DEBUG", "Signed up! Starting new activity");
 	                Intent i = new Intent(LoginActivity.this, MapDemoActivity.class);
@@ -76,6 +93,14 @@ public class LoginActivity extends Activity {
         ParseUser.logInInBackground(username, password, new LogInCallback() {
             public void done(ParseUser user, ParseException e) {
                 if (e == null) {
+                    // store login prefs on successful sign up
+                    SharedPreferences settings = getSharedPreferences(LoginActivity.LOGIN_PREFS_NAME, 0);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString("username", LoginActivity.this.etUsername.getText().toString());
+                    editor.putString("password", LoginActivity.this.etPassword.getText().toString());
+                    editor.putString("email", LoginActivity.this.etEmail.getText().toString());
+                    editor.commit(); 
+
                     // Hooray! Let them use the app now.
                     Log.d("DEBUG", "Logged in! Starting new activity");
                     Intent i = new Intent(LoginActivity.this, MapDemoActivity.class);
