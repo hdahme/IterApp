@@ -25,6 +25,10 @@ public class Event extends ParseObject {
     public void setType(String type) {
         put("type", type);
     }
+    
+    public String getId() {
+    	return getString("objectId");
+    }
 
     public ParseUser getOwner() {
         return getParseUser("owner");

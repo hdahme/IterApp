@@ -30,6 +30,7 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -53,6 +54,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	public static final String HIKE_KEY = "hike";
 	public static final String BIKE_KEY = "bike";
 	public static final String BAR_CRAWL_KEY = "bar_crawl";
+	public static final String EVENT_ID = "event_id";
 	
 	public static final Map<String, Integer> eventTypeMap = new HashMap<String, Integer>();
 	public static List<Event> eventList;
@@ -79,6 +81,18 @@ public class MapDemoActivity extends FragmentActivity implements
 		mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
 		if (mapFragment != null) {
 			map = mapFragment.getMap();
+			map.setOnMarkerClickListener(new OnMarkerClickListener() {
+				public boolean onMarkerClick(Marker marker) {
+					// Update this to point to event-specific intent
+					Intent i = new Intent(MapDemoActivity.this, EventsActivity.class);
+					// passes the event ID in to the new intent
+					Toast.makeText(getBaseContext(), marker.getTitle(), Toast.LENGTH_SHORT).show();
+					i.putExtra(EVENT_ID, marker.getTitle());
+			        startActivityForResult(i, NEW_EVENT_CODE);
+					return true;
+				}
+			});
+			
 			if (map != null) {
 				Toast.makeText(this, "Map Fragment was loaded properly!", Toast.LENGTH_SHORT).show();
 				map.setMyLocationEnabled(true);
@@ -88,10 +102,9 @@ public class MapDemoActivity extends FragmentActivity implements
 		} else {
 			Toast.makeText(this, "Error - Map Fragment was null!!", Toast.LENGTH_SHORT).show();
 		}
-		
+		fetchEventData();
 		fetchEventHandler = new Handler();
 		startRepeatingTask();
-		fetchEventData();
 	}
 	
 	Runnable fetchEvents = new Runnable() {
@@ -126,14 +139,14 @@ public class MapDemoActivity extends FragmentActivity implements
 		eventLocations = new ArrayList<LocationUpdate>();
 		// Querying Parse for location updates goes here:
 		// eventLocations.addAll(result), etc
-		eventLocations.add(new LocationUpdate(37.771270, -122.410478, BAR_CRAWL_KEY));
+		LocationUpdate testLoc = new LocationUpdate(37.771270, -122.410478, BAR_CRAWL_KEY);
+		testLoc.setEventId("vgcwoA6zrk");
+		eventLocations.add(testLoc);
 		
 		for (LocationUpdate l : eventLocations) {
 			Marker mapMarker = map.addMarker(new MarkerOptions()
 		    .position(new LatLng(l.getLat(), l.getLng()))                                                      
-		    .title("Hello")
-		    //.snippet("Hours: " + listing.hoursOpen + " - "                                                
-		    //    + listing.hoursClose)
+		    .title(l.getEventId())
 		    .icon(BitmapDescriptorFactory.fromResource(
 		    		MapDemoActivity.eventTypeMap.get(l.getType()))));
 		}

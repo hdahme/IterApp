@@ -9,7 +9,7 @@ public class LocationUpdate implements Serializable {
 	private double lng;
 	private int timestamp;
 	private int userId;
-	private int eventId;
+	private String eventId;
 	private String type;
 	
 	public LocationUpdate(double lat, double lng, String type) {
@@ -29,7 +29,7 @@ public class LocationUpdate implements Serializable {
 	public int getUserId() {
 		return userId;
 	}
-	public int getEventId() {
+	public String getEventId() {
 		return eventId;
 	}
 	public String getType() {
@@ -38,5 +38,9 @@ public class LocationUpdate implements Serializable {
 	public void setType(String type) {
 		this.type = type;
 	}
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
+	}
+	
 
 }
