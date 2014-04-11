@@ -36,7 +36,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
+        <activity
+            android:name="com.example.mapdemo.EventsActivity"
+            android:label="@string/title_activity_events" >
+        </activity>
+
         <activity
             android:name="com.example.mapdemo.MapDemoActivity"
             android:label="@string/title_map_demo_activity" >
