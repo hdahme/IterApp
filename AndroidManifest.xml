@@ -9,7 +9,8 @@
         android:targetSdkVersion="16" />
 
     <permission android:name="com.example.mapdemo.permission.MAPS_RECEIVE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/> 
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.example.mapdemo.permission.MAPS_RECEIVE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -36,12 +37,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name="com.example.mapdemo.EventsActivity"
             android:label="@string/title_activity_events" >
         </activity>
-
         <activity
             android:name="com.example.mapdemo.MapDemoActivity"
             android:label="@string/title_map_demo_activity" >
@@ -50,10 +49,14 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyCP7aXaKRc1-x4bBb17huAonxcI6qOyasw" />
-            
-        <meta-data 
+        <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"/>
-        
+            android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name="com.example.mapdemo.CreateEventActivity"
+            android:label="@string/title_activity_create_event" >
+        </activity>
     </application>
+
 </manifest>

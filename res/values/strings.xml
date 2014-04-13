@@ -14,5 +14,19 @@
     <string name="title_map_demo_activity">MapDemoActivity</string>
     <string name="title_activity_events">EventsActivity</string>
     <string name="event_title_placeholder">Event Title</string>
+    <string name="title_activity_create_event">CreateEventActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    
+    <string-array name="select_event">
+        <item>Select Event Type</item>
+        <item>Cycling</item>
+        <item>Hiking</item>
+        <item>Pub Crawl</item>
+    </string-array>
+        <string name="event_name_hint">Enter Event Name</string>
+        <string name="event_description">Enter Short Description</string>
+        <string name="create_new_event">Create New Event</string>
+
 
 </resources>
