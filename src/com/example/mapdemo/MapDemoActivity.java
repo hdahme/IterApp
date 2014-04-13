@@ -170,7 +170,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	}
 	
 	public void onAddEventClick(MenuItem mi) {
-		Intent i = new Intent(MapDemoActivity.this, EventsActivity.class);
+		Intent i = new Intent(MapDemoActivity.this, CreateEventActivity.class);
         startActivityForResult(i, NEW_EVENT_CODE);
 	}
 
