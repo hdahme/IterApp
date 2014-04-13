@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.os.Build;
@@ -24,6 +25,7 @@ public class CreateEventActivity extends Activity {
 	Spinner spinner;
 	EditText eventName; 
 	EditText eventDescription;
+	ImageView submitEvent;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,6 +40,14 @@ public class CreateEventActivity extends Activity {
 		
 		eventName = (EditText)findViewById(R.id.etEventName);
 		eventDescription = (EditText)findViewById(R.id.etDescription);
+	
+		submitEvent = (ImageView)findViewById(R.id.ivStartEvent);
+		
+		submitEvent.setOnClickListener(new View.OnClickListener(){
+		    public void onClick(View v) {   
+		    	onCreateNewEvent();
+		     }
+		});
 		
 		
 	}
@@ -63,7 +73,7 @@ public class CreateEventActivity extends Activity {
 	}
 	
 	
-	public void onCreateNewEventClick(){
+	public void onCreateNewEvent(){
 		
 		// Check to see if necessary data entered
 		if(spinner.getSelectedItem().toString().equals("Select Event Type")){
@@ -91,9 +101,11 @@ public class CreateEventActivity extends Activity {
 		newEvent.setDescription(eventDescription.getText().toString());
 		newEvent.setTitle(eventName.getText().toString());
 		newEvent.setType(spinner.getSelectedItem().toString());
+		newEvent.setActive(true);
 		newEvent.setOwner(currentUser);		
 
 		newEvent.saveInBackground();
+		finish();
 	}
 
 
