@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 public class MapDemoActivity extends FragmentActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
@@ -103,7 +104,6 @@ public class MapDemoActivity extends FragmentActivity implements
 		}
 		fetchEventData();
 		fetchEventHandler = new Handler();
-		startRepeatingTask();
 	}
 	
 	Runnable fetchEvents = new Runnable() {
@@ -113,11 +113,11 @@ public class MapDemoActivity extends FragmentActivity implements
 		}
 	};
 	
-	private void startRepeatingTask() {
+	private void startFetchingEvents() {
 		fetchEvents.run();
 	}
 	
-	private void stopRepeatingTask() {
+	private void stopFetchingEvents() {
 		fetchEventHandler.removeCallbacks(fetchEvents);
 	}
 	
@@ -127,6 +127,7 @@ public class MapDemoActivity extends FragmentActivity implements
             public void done(List<Event> itemList, ParseException e) {
                 if (e == null) {
                     MapDemoActivity.eventList = itemList;
+                    startFetchingEvents();
                 } else {
                     Log.d("item", "Error: " + e.getMessage());
                 }
@@ -138,6 +139,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		eventLocations = new ArrayList<LocationUpdate>();
 		// Querying Parse for location updates goes here:
 		// eventLocations.addAll(result), etc
+		/*
 		LocationUpdate testLoc1 = new LocationUpdate(37.771270, -122.410478, BAR_CRAWL_KEY);
 		LocationUpdate testLoc2 = new LocationUpdate(37.778597, -122.432107, BIKE_KEY);
 		LocationUpdate testLoc3 = new LocationUpdate(37.778326, -122.417601, HIKE_KEY);
@@ -146,12 +148,24 @@ public class MapDemoActivity extends FragmentActivity implements
 		testLoc3.setEventId("vgcwoA6zrk_3");
 		eventLocations.add(testLoc1);
 		eventLocations.add(testLoc2);
-		eventLocations.add(testLoc3);
+		eventLocations.add(testLoc3);*/
+		
+		LocationUpdate locationUpdate = new LocationUpdate();
+		ParseUser currentUser = ParseUser.getCurrentUser();
+		locationUpdate.setLat(37.771270);
+		locationUpdate.setLng(-122.410478);
+		locationUpdate.setType(BAR_CRAWL_KEY);
+		locationUpdate.setEvent((Event)eventList.get(0));
+		locationUpdate.setUser(currentUser);
+		locationUpdate.setTimestamp(System.currentTimeMillis());
+		locationUpdate.saveInBackground();
+		
+		eventLocations.add(locationUpdate);
 		
 		for (LocationUpdate l : eventLocations) {
 			Marker mapMarker = map.addMarker(new MarkerOptions()
 		    .position(new LatLng(l.getLat(), l.getLng()))                                                      
-		    .title(l.getEventId())
+		    .title(((Event)l.getEvent()).getId())
 		    .icon(BitmapDescriptorFactory.fromResource(
 		    		MapDemoActivity.eventTypeMap.get(l.getType()))));
 		}

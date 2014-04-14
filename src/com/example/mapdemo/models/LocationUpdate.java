@@ -1,45 +1,50 @@
 package com.example.mapdemo.models;
 
-import java.io.Serializable;
+import com.parse.ParseClassName;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
 
-public class LocationUpdate implements Serializable {
-    private static final long serialVersionUID = 9164529005280807568L;
-
-    private double lat;
-	private double lng;
-	private int timestamp;
-	private int userId;
-	private String eventId;
-	private String type;
+@ParseClassName("LocationUpdate")
+public class LocationUpdate extends ParseObject{
 	
-	public LocationUpdate(double lat, double lng, String type) {
-		this.lat = lat;
-		this.lng = lng;
-		this.type = type;
+	public LocationUpdate() {
+		super();
 	}
 	public double getLat() {
-		return lat;
+		return getDouble("lat");
 	}
 	public double getLng() {
-		return lng;
+		return getDouble("lng");
 	}
-	public int getTimestamp() {
-		return timestamp;
+	public long getTimestamp() {
+		return getLong("timestamp");
 	}
-	public int getUserId() {
-		return userId;
+	public ParseUser getUser() {
+		return getParseUser("user");
 	}
-	public String getEventId() {
-		return eventId;
+	public ParseObject getEvent() {
+		return getParseObject("event");
 	}
 	public String getType() {
-		return type;
+		return getString("type");
 	}
 	public void setType(String type) {
-		this.type = type;
+		put("type", type);
 	}
-	public void setEventId(String eventId) {
-		this.eventId = eventId;
+	public void setEvent(ParseObject event) {
+		put("event", event);
+	}
+	public void setLat(double lat) {
+		put("lat", lat);
+	}
+	public void setLng(double lng) {
+		put("lng", lng);
+	}
+	public void setUser(ParseUser user) {
+		put("user", user);
+	}
+	public void setTimestamp(long timestamp) {
+		put("timestamp", timestamp);
 	}
 	
 
