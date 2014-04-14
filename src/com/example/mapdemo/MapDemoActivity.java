@@ -20,7 +20,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.example.mapdemo.fragments.EventsListFragment;
 import com.example.mapdemo.models.Event;
 import com.example.mapdemo.models.LocationUpdate;
 import com.google.android.gms.common.ConnectionResult;

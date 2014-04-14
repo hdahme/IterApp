@@ -1,24 +1,19 @@
 package com.example.mapdemo;
 
-import com.example.mapdemo.models.Event;
-import com.parse.ParseUser;
-
 import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.os.Build;
+
+import com.example.mapdemo.models.Event;
+import com.parse.ParseUser;
 
 public class CreateEventActivity extends Activity {
 

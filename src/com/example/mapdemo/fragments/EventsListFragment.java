@@ -1,11 +1,9 @@
 package com.example.mapdemo.fragments;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +13,6 @@ import com.example.mapdemo.EventsAdapter;
 import com.example.mapdemo.MapDemoActivity;
 import com.example.mapdemo.R;
 import com.example.mapdemo.models.Event;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseQuery;
 
 public class EventsListFragment extends Fragment {
     private ListView lvEvents;
