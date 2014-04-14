@@ -1,6 +1,7 @@
 package com.example.mapdemo;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,14 +14,17 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.mapdemo.models.Event;
+import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class CreateEventActivity extends Activity {
 
-	Spinner spinner;
-	EditText eventName; 
-	EditText eventDescription;
-	ImageView submitEvent;
+	private Spinner spinner;
+	private EditText eventName; 
+	private EditText eventDescription;
+	private ImageView submitEvent;
+	private Event newEvent;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -90,17 +94,27 @@ public class CreateEventActivity extends Activity {
 	    }
 		
 		// Create the event object to save
-		Event newEvent = new Event();
+		newEvent = new Event();
 		ParseUser currentUser = ParseUser.getCurrentUser();
 
 		newEvent.setDescription(eventDescription.getText().toString());
 		newEvent.setTitle(eventName.getText().toString());
-		newEvent.setType(spinner.getSelectedItem().toString());
+		// Map spinner value to internal event type
+		newEvent.setType(MapDemoActivity.coloquialTypeName.get(spinner.getSelectedItem().toString()));
 		newEvent.setActive(true);
 		newEvent.setOwner(currentUser);		
 
-		newEvent.saveInBackground();
-		finish();
+		newEvent.saveInBackground(new SaveCallback(){
+			@Override
+			public void done(ParseException e) {
+				Intent data = new Intent();		
+				data.putExtra(MapDemoActivity.NEW_EVENT, newEvent.getObjectId());
+				setResult(RESULT_OK, data);
+				finish();
+			}
+		});
+		
+		
 	}
 
 

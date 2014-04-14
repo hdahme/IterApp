@@ -1,12 +1,16 @@
 package com.example.mapdemo.models;
 
+import java.io.Serializable;
+
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 @ParseClassName("Event")
-public class Event extends ParseObject {
-    public Event() {
+public class Event extends ParseObject implements Serializable{
+	private static final long serialVersionUID = 1L;
+
+	public Event() {
         super();
     }
 

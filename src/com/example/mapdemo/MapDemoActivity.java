@@ -48,15 +48,20 @@ public class MapDemoActivity extends FragmentActivity implements
 	private GoogleMap map;
 	private LocationClient mLocationClient;
 	private int fetchEventInterval = 5000; //5 seconds
+	private int sendLocationInterval = 5000; //5 seconds
 	private Handler fetchEventHandler;
+	private Handler sendLocationHandler;
+	private Event currentEvent;
 	
 	public static final int NEW_EVENT_CODE = 100;
 	public static final String HIKE_KEY = "hike";
 	public static final String BIKE_KEY = "bike";
 	public static final String BAR_CRAWL_KEY = "bar_crawl";
-	public static final String EVENT_ID = "event_id";
+	public static final String EVENT = "event";
+	public static final String NEW_EVENT = "new event";
 	
 	public static final Map<String, Integer> eventTypeMap = new HashMap<String, Integer>();
+	public static final Map<String, String> coloquialTypeName = new HashMap<String, String>();
 	public static List<Event> eventList;
 	public static List<LocationUpdate> eventLocations;
 	/*
@@ -77,6 +82,14 @@ public class MapDemoActivity extends FragmentActivity implements
 			MapDemoActivity.eventTypeMap.put(BAR_CRAWL_KEY, R.drawable.ic_beer);
 		}
 		
+		// Initialize the mapping of event type to drawable resource
+		if (MapDemoActivity.coloquialTypeName.size() == 0) {
+			String[] strArray = getResources().getStringArray(R.array.select_event);
+			MapDemoActivity.coloquialTypeName.put(strArray[1], BIKE_KEY);
+			MapDemoActivity.coloquialTypeName.put(strArray[2], HIKE_KEY);
+			MapDemoActivity.coloquialTypeName.put(strArray[3], BAR_CRAWL_KEY);
+		}
+		
 		mLocationClient = new LocationClient(this, this, this);
 		mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
 		if (mapFragment != null) {
@@ -87,7 +100,7 @@ public class MapDemoActivity extends FragmentActivity implements
 					Intent i = new Intent(MapDemoActivity.this, EventsActivity.class);
 					// passes the event ID in to the new intent
 					Toast.makeText(getBaseContext(), marker.getTitle(), Toast.LENGTH_SHORT).show();
-					i.putExtra(EVENT_ID, marker.getTitle());
+					i.putExtra(EVENT, marker.getTitle());
 			        startActivityForResult(i, NEW_EVENT_CODE);
 					return true;
 				}
@@ -104,21 +117,37 @@ public class MapDemoActivity extends FragmentActivity implements
 		}
 		fetchEventData();
 		fetchEventHandler = new Handler();
+		sendLocationHandler = new Handler();
 	}
 	
-	Runnable fetchEvents = new Runnable() {
+	Runnable fetchEventLocations = new Runnable() {
 		public void run() {
 			fetchEventLocations();
-			fetchEventHandler.postDelayed(fetchEvents, fetchEventInterval);
+			fetchEventHandler.postDelayed(fetchEventLocations, fetchEventInterval);
 		}
 	};
 	
-	private void startFetchingEvents() {
-		fetchEvents.run();
+	Runnable sendLocation = new Runnable() {
+		public void run() {
+			sendLocation();
+			sendLocationHandler.postDelayed(sendLocation, sendLocationInterval);
+		}
+	};
+	
+	private void startFetchingEventLocations() {
+		fetchEventLocations.run();
 	}
 	
-	private void stopFetchingEvents() {
-		fetchEventHandler.removeCallbacks(fetchEvents);
+	private void startSendingLocation() {
+		sendLocation.run();
+	}
+	
+	private void stopFetchingEventLocations() {
+		fetchEventHandler.removeCallbacks(fetchEventLocations);
+	}
+	
+	private void stopSendingLocation() {
+		sendLocationHandler.removeCallbacks(sendLocation);
 	}
 	
 	public void fetchEventData() {
@@ -127,7 +156,8 @@ public class MapDemoActivity extends FragmentActivity implements
             public void done(List<Event> itemList, ParseException e) {
                 if (e == null) {
                     MapDemoActivity.eventList = itemList;
-                    startFetchingEvents();
+                    // Only start fetching event locations once we've got the list of events. Avoids NullPointer
+                    startFetchingEventLocations();
                 } else {
                     Log.d("item", "Error: " + e.getMessage());
                 }
@@ -135,40 +165,37 @@ public class MapDemoActivity extends FragmentActivity implements
         });
 	}
 	
-	public void fetchEventLocations() {
-		eventLocations = new ArrayList<LocationUpdate>();
-		// Querying Parse for location updates goes here:
-		// eventLocations.addAll(result), etc
-		/*
-		LocationUpdate testLoc1 = new LocationUpdate(37.771270, -122.410478, BAR_CRAWL_KEY);
-		LocationUpdate testLoc2 = new LocationUpdate(37.778597, -122.432107, BIKE_KEY);
-		LocationUpdate testLoc3 = new LocationUpdate(37.778326, -122.417601, HIKE_KEY);
-		testLoc1.setEventId("vgcwoA6zrk");
-		testLoc2.setEventId("vgcwoA6zrk_2");
-		testLoc3.setEventId("vgcwoA6zrk_3");
-		eventLocations.add(testLoc1);
-		eventLocations.add(testLoc2);
-		eventLocations.add(testLoc3);*/
-		
+	public void sendLocation() {
 		LocationUpdate locationUpdate = new LocationUpdate();
 		ParseUser currentUser = ParseUser.getCurrentUser();
-		locationUpdate.setLat(37.771270);
-		locationUpdate.setLng(-122.410478);
-		locationUpdate.setType(BAR_CRAWL_KEY);
-		locationUpdate.setEvent((Event)eventList.get(0));
+		locationUpdate.setLat(37.7757481);
+		locationUpdate.setLng(-122.4312914);
+		locationUpdate.setType(currentEvent.getType());
+		locationUpdate.setEvent(currentEvent);
 		locationUpdate.setUser(currentUser);
 		locationUpdate.setTimestamp(System.currentTimeMillis());
 		locationUpdate.saveInBackground();
-		
-		eventLocations.add(locationUpdate);
-		
-		for (LocationUpdate l : eventLocations) {
-			Marker mapMarker = map.addMarker(new MarkerOptions()
-		    .position(new LatLng(l.getLat(), l.getLng()))                                                      
-		    .title(((Event)l.getEvent()).getId())
-		    .icon(BitmapDescriptorFactory.fromResource(
-		    		MapDemoActivity.eventTypeMap.get(l.getType()))));
-		}
+	}
+	
+	public void fetchEventLocations() {
+		ParseQuery<LocationUpdate> query = ParseQuery.getQuery(LocationUpdate.class);
+        query.findInBackground(new FindCallback<LocationUpdate>() {
+            public void done(List<LocationUpdate> itemList, ParseException e) {
+                if (e == null) {
+                    MapDemoActivity.eventLocations = itemList;
+                    // Once we've got the locations, extract the most recent updates for each event, and render icons
+                    for (LocationUpdate l : eventLocations) {
+            			Marker mapMarker = map.addMarker(new MarkerOptions()
+            		    .position(new LatLng(l.getLat(), l.getLng()))                                                      
+            		    .title(((Event)l.getEvent()).getObjectId())
+            		    .icon(BitmapDescriptorFactory.fromResource(
+            		    		MapDemoActivity.eventTypeMap.get(l.getType()))));
+            		}
+                } else {
+                    Log.d("item", "Error: " + e.getMessage());
+                }
+            }
+        });
 	}
 	
 	@Override
@@ -215,6 +242,20 @@ public class MapDemoActivity extends FragmentActivity implements
 	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == RESULT_OK && requestCode == NEW_EVENT_CODE) {
+			String objId = (String)data.getExtras().getSerializable(NEW_EVENT);
+		    // Query Parse for the referenced event
+			ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
+			query.whereEqualTo("objectId", objId);
+	        query.findInBackground(new FindCallback<Event>() {
+				@Override
+				public void done(List<Event> events, ParseException e) {
+					currentEvent = events.get(0);
+					startSendingLocation();
+				}
+	        });
+		  }
+		
 		// Decide what to do based on the original request code
 		switch (requestCode) {
 
