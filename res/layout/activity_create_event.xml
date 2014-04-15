@@ -19,7 +19,7 @@
         android:src="@drawable/ic_start" />
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/tvEventName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/etEventName"
@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/spSelectEvent"
         android:layout_alignRight="@+id/spSelectEvent"
-        android:layout_below="@+id/textView1"
+        android:layout_below="@+id/tvEventName"
         android:layout_marginTop="27dp"
         android:ems="10"
         android:hint="@string/event_name_hint" >
