@@ -8,14 +8,10 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-<<<<<<< HEAD
 import android.content.Context;
-=======
 import android.content.DialogInterface;
->>>>>>> 4a2ce1996c532aa35699b917b6236134c17ab987
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
