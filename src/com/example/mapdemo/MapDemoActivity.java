@@ -6,10 +6,16 @@ import java.util.Map;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+<<<<<<< HEAD
 import android.content.Context;
+=======
+import android.content.DialogInterface;
+>>>>>>> 4a2ce1996c532aa35699b917b6236134c17ab987
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -54,12 +60,15 @@ public class MapDemoActivity extends FragmentActivity implements
 	private Handler fetchEventHandler;
 	private Handler sendLocationHandler;
 	private Event currentEvent;
+	private String currentUser;
+	private AlertDialog.Builder dialogBuilder;
 	
 	public static final int NEW_EVENT_CODE = 100;
 	public static final String HIKE_KEY = "hike";
 	public static final String BIKE_KEY = "bike";
 	public static final String BAR_CRAWL_KEY = "bar_crawl";
 	public static final String EVENT = "event";
+	public static final String CURRENT_USER = "current user";
 	public static final String NEW_EVENT = "new event";
 	
 	public static final Map<String, Integer> eventTypeMap = new HashMap<String, Integer>();
@@ -91,6 +100,8 @@ public class MapDemoActivity extends FragmentActivity implements
 			MapDemoActivity.coloquialTypeName.put(strArray[2], HIKE_KEY);
 			MapDemoActivity.coloquialTypeName.put(strArray[3], BAR_CRAWL_KEY);
 		}
+		currentUser = (String) getIntent().getSerializableExtra(CURRENT_USER);
+		dialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK);
 		
 		mLocationClient = new LocationClient(this, this, this);
 		mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
@@ -98,12 +109,48 @@ public class MapDemoActivity extends FragmentActivity implements
 			map = mapFragment.getMap();
 			map.setOnMarkerClickListener(new OnMarkerClickListener() {
 				public boolean onMarkerClick(Marker marker) {
-					// Update this to point to event-specific intent
-					Intent i = new Intent(MapDemoActivity.this, EventsActivity.class);
-					// passes the event ID in to the new intent
-					Toast.makeText(getBaseContext(), marker.getTitle(), Toast.LENGTH_SHORT).show();
-					i.putExtra(EVENT, marker.getTitle());
-			        startActivityForResult(i, NEW_EVENT_CODE);
+					ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
+					query.whereEqualTo("objectId", marker.getTitle());
+			        query.findInBackground(new FindCallback<Event>() {
+			        	private Event event;
+						public void done(List<Event> events, ParseException e) {
+							event = events.get(0);
+							dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int which) {
+								}
+							});
+							
+							if (currentEvent == null) {
+								dialogBuilder.setPositiveButton(R.string.join, new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int which) {
+										Toast.makeText(getBaseContext(), "Joining event", Toast.LENGTH_SHORT).show();
+										currentEvent = event;
+										System.out.println(currentUser);
+										System.out.println(currentEvent.getOwner().getObjectId());
+									}
+								});
+							} else if (currentEvent.getOwner().getObjectId().equals(currentUser)) {
+								dialogBuilder.setPositiveButton(R.string.end_event, new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int which) {
+										Toast.makeText(getBaseContext(), "Ending event", Toast.LENGTH_SHORT).show();
+										currentEvent = null;
+										stopSendingLocation();
+									}
+								});
+							} else {
+								dialogBuilder.setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int which) {
+										Toast.makeText(getBaseContext(), "Leaving event", Toast.LENGTH_SHORT).show();
+										currentEvent = null;
+									}
+								});
+							}
+							dialogBuilder.setTitle(event.getTitle())
+								.setMessage(event.getDescription());
+							AlertDialog d = dialogBuilder.create();
+							d.show();
+						}
+			        });
 					return true;
 				}
 			});
@@ -187,6 +234,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	public void fetchEventLocations() {
 		ParseQuery<LocationUpdate> query = ParseQuery.getQuery(LocationUpdate.class);
+		//query.whereGreaterThan("timestamp", System.currentTimeMillis()-10000);
         query.findInBackground(new FindCallback<LocationUpdate>() {
             public void done(List<LocationUpdate> itemList, ParseException e) {
                 if (e == null) {
@@ -195,7 +243,8 @@ public class MapDemoActivity extends FragmentActivity implements
                     for (LocationUpdate l : eventLocations) {
             			Marker mapMarker = map.addMarker(new MarkerOptions()
             		    .position(new LatLng(l.getLat(), l.getLng()))                                                      
-            		    .title(((Event)l.getEvent()).getObjectId())
+            		    .title(l.getEvent().getObjectId())
+            		    //.snippet(((Event)l.getEvent()).getDescription())
             		    .icon(BitmapDescriptorFactory.fromResource(
             		    		MapDemoActivity.eventTypeMap.get(l.getType()))));
             		}

@@ -20,6 +20,7 @@ public class LoginActivity extends Activity {
     private EditText etUsername;
     private EditText etPassword;
     private EditText etEmail;
+    private ParseUser user;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -50,7 +51,7 @@ public class LoginActivity extends Activity {
 	        return;
 	    }
 
-	    ParseUser user = new ParseUser();
+	    user = new ParseUser();
 	    user.setUsername(username);
 	    user.setPassword(password);
 	    user.setEmail(email);
@@ -68,6 +69,7 @@ public class LoginActivity extends Activity {
 	                // Hooray! Let them use the app now.
 	                Log.d("DEBUG", "Signed up! Starting new activity");
 	                Intent i = new Intent(LoginActivity.this, MapDemoActivity.class);
+	                i.putExtra(MapDemoActivity.CURRENT_USER, user.getObjectId());
 	                startActivity(i);
 	            } else {
 	                // Sign up didn't succeed. Look at the ParseException
@@ -104,6 +106,7 @@ public class LoginActivity extends Activity {
                     // Hooray! Let them use the app now.
                     Log.d("DEBUG", "Logged in! Starting new activity");
                     Intent i = new Intent(LoginActivity.this, MapDemoActivity.class);
+                    i.putExtra(MapDemoActivity.CURRENT_USER, user.getObjectId());
                     startActivity(i);
                 } else {
                     // Sign up didn't succeed. Look at the ParseException
