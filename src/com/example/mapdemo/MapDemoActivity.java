@@ -49,6 +49,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class MapDemoActivity extends FragmentActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
@@ -64,7 +65,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	private Handler fetchEventHandler;
 	private Handler sendLocationHandler;
 	private Event currentEvent;
-	private String currentUser;
+	private ParseUser currentUser;
 	private AlertDialog.Builder dialogBuilder;
 	private EventFilters eventFilters = null;
 	private static final int FILTERS_REQUEST_CODE = 1;
@@ -74,7 +75,6 @@ public class MapDemoActivity extends FragmentActivity implements
 	public static final String BIKE_KEY = "bike";
 	public static final String BAR_CRAWL_KEY = "bar_crawl";
 	public static final String EVENT = "event";
-	public static final String CURRENT_USER = "current user";
 	public static final String NEW_EVENT = "new event";
 	
 	public static final Map<String, Integer> eventTypeMap = new HashMap<String, Integer>();
@@ -109,7 +109,7 @@ public class MapDemoActivity extends FragmentActivity implements
 			MapDemoActivity.coloquialTypeName.put(strArray[2], HIKE_KEY);
 			MapDemoActivity.coloquialTypeName.put(strArray[3], BAR_CRAWL_KEY);
 		}
-		currentUser = (String) getIntent().getSerializableExtra(CURRENT_USER);
+		currentUser = ParseUser.getCurrentUser();
 		dialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK);
 		
 		mLocationClient = new LocationClient(this, this, this);
@@ -128,7 +128,7 @@ public class MapDemoActivity extends FragmentActivity implements
 								public void onClick(DialogInterface dialog, int which) {
 								}
 							});
-							
+			        		
 							if (currentEvent == null) {
 								dialogBuilder.setPositiveButton(R.string.join, new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog, int which) {
@@ -136,10 +136,14 @@ public class MapDemoActivity extends FragmentActivity implements
 										currentEvent = event;
 									}
 								});
-							} else if (currentEvent.getOwner().getObjectId().equals(currentUser)) {
+							} else if (((String)currentEvent.getOwner().getObjectId()).equals(currentUser.getObjectId())) {
 								dialogBuilder.setPositiveButton(R.string.end_event, new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog, int which) {
 										Toast.makeText(getBaseContext(), "Ending event", Toast.LENGTH_SHORT).show();
+										currentEvent.setActive(false);
+										currentEvent.saveInBackground(new SaveCallback(){
+											public void done(ParseException e) {}
+										});
 										currentEvent = null;
 										stopSendingLocation();
 									}
@@ -212,6 +216,9 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	public void fetchEventData() {
 		ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
+		
+		// Only pull active events
+		query.whereEqualTo("active", true);
 
 		if (this.eventFilters != null) {
 		    this.eventFilters.applyFiltersToQuery(query);
@@ -240,7 +247,7 @@ public class MapDemoActivity extends FragmentActivity implements
             latitude = gps.getLatitude();
             longitude = gps.getLongitude();
              
-            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_SHORT).show();    
+            //Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_SHORT).show();    
         }else{
             // can't get location
             // GPS or Network is not enabled
@@ -278,7 +285,8 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	public void renderEventHistoryAndIcons() {
 		int decayAmount = 0;
-		
+		// Wipe all old icons, polylines, etc
+		map.clear();
 		for (int i = 0; i < MapDemoActivity.eventLocations.size(); i++) {
 			LocationUpdate l = MapDemoActivity.eventLocations.get(i);
 			LocationUpdate otherL = null;
@@ -374,6 +382,7 @@ public class MapDemoActivity extends FragmentActivity implements
 				public void done(List<Event> events, ParseException e) {
 					currentEvent = events.get(0);
 					startSendingLocation();
+					fetchEventLocations();
 				}
 	        });
 		} else if (resultCode == RESULT_OK && requestCode == MapDemoActivity.FILTERS_REQUEST_CODE) {
