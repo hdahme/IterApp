@@ -65,6 +65,10 @@
             android:name="com.example.mapdemo.DetailedEventActivity"
             android:label="@string/title_activity_detailed_event" >
         </activity>
+        <activity
+            android:name="com.example.mapdemo.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
     </application>
 
 </manifest>
