@@ -40,5 +40,7 @@
     <string name="logged_in_as_label">Logged in as:</string>
     <string name="logout_label">Logout</string>
     <string name="title_activity_filter">Filters</string>
+    <string name="event_type_label">Event Type:</string>
+    <string name="save_label">Save</string>
 
 </resources>
