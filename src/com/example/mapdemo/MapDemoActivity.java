@@ -58,6 +58,8 @@ public class MapDemoActivity extends FragmentActivity implements
 	private Event currentEvent;
 	private String currentUser;
 	private AlertDialog.Builder dialogBuilder;
+	private EventFilters eventFilters = null;
+	private static final int FILTERS_REQUEST_CODE = 1;
 	
 	public static final int NEW_EVENT_CODE = 100;
 	public static final String HIKE_KEY = "hike";
@@ -274,7 +276,8 @@ public class MapDemoActivity extends FragmentActivity implements
 
 	public void onFilterClick(MenuItem mi) {
 	    Intent i = new Intent(this, FilterActivity.class);
-        startActivity(i);
+	    i.putExtra(EventFilters.EXTRAS_KEY, this.eventFilters);
+	    startActivityForResult(i, MapDemoActivity.FILTERS_REQUEST_CODE);
 	}
 
 	/*
@@ -317,8 +320,11 @@ public class MapDemoActivity extends FragmentActivity implements
 					startSendingLocation();
 				}
 	        });
-		  }
-		
+		} else if (resultCode == RESULT_OK && requestCode == MapDemoActivity.FILTERS_REQUEST_CODE) {
+		    this.eventFilters = (EventFilters) data.getExtras().getSerializable(EventFilters.EXTRAS_KEY);
+		    this.fetchEventData();
+		}
+
 		// Decide what to do based on the original request code
 		switch (requestCode) {
 
