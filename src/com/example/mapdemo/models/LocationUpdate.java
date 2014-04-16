@@ -1,11 +1,13 @@
 package com.example.mapdemo.models;
 
+import java.util.Comparator;
+
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 @ParseClassName("LocationUpdate")
-public class LocationUpdate extends ParseObject{
+public class LocationUpdate extends ParseObject implements Comparable<LocationUpdate>{
 	
 	public LocationUpdate() {
 		super();
@@ -46,6 +48,13 @@ public class LocationUpdate extends ParseObject{
 	public void setTimestamp(long timestamp) {
 		put("timestamp", timestamp);
 	}
-	
 
+	public int compareTo(LocationUpdate other) {
+		return this.getEvent().getObjectId().compareTo(other.getEvent().getObjectId());
+	}
+	
+	public String toString() {
+		return this.getEvent().getObjectId() + ",  " + this.getLat() + ",  " + 
+			this.getLng() + ",  " + this.getTimestamp();
+	}
 }

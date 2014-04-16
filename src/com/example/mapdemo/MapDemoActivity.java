@@ -1,5 +1,6 @@
 package com.example.mapdemo;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -39,6 +41,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -51,8 +57,10 @@ public class MapDemoActivity extends FragmentActivity implements
 	private SupportMapFragment mapFragment;
 	private GoogleMap map;
 	private LocationClient mLocationClient;
-	private int fetchEventInterval = 5000; //5 seconds
+	// Only makes sense to fetch as often as they're sent
+	private int fetchEventInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES; 
 	private int sendLocationInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES;
+	private int amountOfHistoryToPull = 1000 * 60 * 60 * 24; // 1 day
 	private Handler fetchEventHandler;
 	private Handler sendLocationHandler;
 	private Event currentEvent;
@@ -126,8 +134,6 @@ public class MapDemoActivity extends FragmentActivity implements
 									public void onClick(DialogInterface dialog, int which) {
 										Toast.makeText(getBaseContext(), "Joining event", Toast.LENGTH_SHORT).show();
 										currentEvent = event;
-										System.out.println(currentUser);
-										System.out.println(currentEvent.getOwner().getObjectId());
 									}
 								});
 							} else if (currentEvent.getOwner().getObjectId().equals(currentUser)) {
@@ -255,25 +261,52 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	public void fetchEventLocations() {
 		ParseQuery<LocationUpdate> query = ParseQuery.getQuery(LocationUpdate.class);
-		//query.whereGreaterThan("timestamp", System.currentTimeMillis()-10000);
+		query.orderByDescending("timestamp");
+		query.whereGreaterThan("timestamp", System.currentTimeMillis() - amountOfHistoryToPull);
         query.findInBackground(new FindCallback<LocationUpdate>() {
             public void done(List<LocationUpdate> itemList, ParseException e) {
                 if (e == null) {
+                	Collections.sort(itemList);
                     MapDemoActivity.eventLocations = itemList;
-                    // Once we've got the locations, extract the most recent updates for each event, and render icons
-                    for (LocationUpdate l : eventLocations) {
-            			Marker mapMarker = map.addMarker(new MarkerOptions()
-            		    .position(new LatLng(l.getLat(), l.getLng()))                                                      
-            		    .title(l.getEvent().getObjectId())
-            		    //.snippet(((Event)l.getEvent()).getDescription())
-            		    .icon(BitmapDescriptorFactory.fromResource(
-            		    		MapDemoActivity.eventTypeMap.get(l.getType()))));
-            		}
+                    renderEventHistoryAndIcons();
                 } else {
                     Log.d("item", "Error: " + e.getMessage());
                 }
             }
         });
+	}
+	
+	public void renderEventHistoryAndIcons() {
+		int decayAmount = 0;
+		
+		for (int i = 0; i < MapDemoActivity.eventLocations.size(); i++) {
+			LocationUpdate l = MapDemoActivity.eventLocations.get(i);
+			LocationUpdate otherL = null;
+			
+			if (i > 0) {
+				otherL = MapDemoActivity.eventLocations.get(i-1);
+			}
+			// If it's the most recent update in a series of updates for a particular event, draw the icon
+			if (otherL == null || !l.getEvent().getObjectId().equals(otherL.getEvent().getObjectId())) {
+				Marker mapMarker = map.addMarker(new MarkerOptions()
+    		    .position(new LatLng(l.getLat(), l.getLng()))                                                      
+    		    .title(l.getEvent().getObjectId())
+    		    .icon(BitmapDescriptorFactory.fromResource(
+    		    		MapDemoActivity.eventTypeMap.get(l.getType()))));
+				decayAmount = 0;
+			// Otherwise draw polylines connecting the previous location updates
+			} else {
+				int c = Color.argb(Math.max(255-(decayAmount*75), 0), 0, 0, 0);				
+				Polyline polyline = map.addPolyline(new PolylineOptions()
+				.add(new LatLng(l.getLat(), l.getLng()), 
+				     new LatLng(otherL.getLat(), otherL.getLng()))
+				.width(5)
+				.color(c));
+				
+				decayAmount++;
+			}
+		}
+		
 	}
 	
 	@Override
