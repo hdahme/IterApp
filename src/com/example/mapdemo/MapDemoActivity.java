@@ -258,6 +258,11 @@ public class MapDemoActivity extends FragmentActivity implements
         startActivityForResult(i, NEW_EVENT_CODE);
 	}
 
+	public void onSettingsClick(MenuItem mi) {
+	    Intent i = new Intent(this, SettingsActivity.class);
+	    startActivity(i);
+	}
+
 	/*
 	 * Called when the Activity becomes visible.
 	 */
