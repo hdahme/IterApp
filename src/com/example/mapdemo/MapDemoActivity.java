@@ -205,6 +205,11 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	public void fetchEventData() {
 		ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
+
+		if (this.eventFilters != null) {
+		    this.eventFilters.applyFiltersToQuery(query);
+		}
+
         query.findInBackground(new FindCallback<Event>() {
             public void done(List<Event> itemList, ParseException e) {
                 if (e == null) {
