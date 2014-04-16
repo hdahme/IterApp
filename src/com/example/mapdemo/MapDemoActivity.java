@@ -1,6 +1,5 @@
 package com.example.mapdemo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,9 +7,12 @@ import java.util.Map;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
@@ -118,6 +120,12 @@ public class MapDemoActivity extends FragmentActivity implements
 		fetchEventData();
 		fetchEventHandler = new Handler();
 		sendLocationHandler = new Handler();
+		
+		LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+		LocationListener mlocListener = new MyLocationListener(this);
+
+		mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
 	}
 	
 	Runnable fetchEventLocations = new Runnable() {
