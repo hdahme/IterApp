@@ -52,7 +52,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	private GoogleMap map;
 	private LocationClient mLocationClient;
 	private int fetchEventInterval = 5000; //5 seconds
-	private int sendLocationInterval = 5000; //5 seconds
+	private int sendLocationInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES;
 	private Handler fetchEventHandler;
 	private Handler sendLocationHandler;
 	private Event currentEvent;
@@ -73,6 +73,9 @@ public class MapDemoActivity extends FragmentActivity implements
 	public static final Map<String, String> coloquialTypeName = new HashMap<String, String>();
 	public static List<Event> eventList;
 	public static List<LocationUpdate> eventLocations;
+
+	GPSTracking gps;
+	
 	/*
 	 * Define a request code to send to Google Play services This code is
 	 * returned in Activity.onActivityResult
@@ -166,11 +169,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		fetchEventHandler = new Handler();
 		sendLocationHandler = new Handler();
 		
-		LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
-		LocationListener mlocListener = new MyLocationListener(this);
-
-		mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
 	}
 	
 	Runnable fetchEventLocations = new Runnable() {
@@ -192,14 +191,16 @@ public class MapDemoActivity extends FragmentActivity implements
 	}
 	
 	private void startSendingLocation() {
+		gps = new GPSTracking(MapDemoActivity.this);
 		sendLocation.run();
 	}
 	
-	private void stopFetchingEventLocations() {
+	private void stopFetchingEventLocations() {		
 		fetchEventHandler.removeCallbacks(fetchEventLocations);
 	}
 	
 	private void stopSendingLocation() {
+		gps.stopUsingGPS();
 		sendLocationHandler.removeCallbacks(sendLocation);
 	}
 	
@@ -224,10 +225,27 @@ public class MapDemoActivity extends FragmentActivity implements
 	}
 	
 	public void sendLocation() {
+
+		double latitude = -1;
+		double longitude = -1;
+        // check if GPS enabled     
+        if(gps.canGetLocation()){
+             
+            latitude = gps.getLatitude();
+            longitude = gps.getLongitude();
+             
+            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_SHORT).show();    
+        }else{
+            // can't get location
+            // GPS or Network is not enabled
+            // Ask user to enable GPS/network in settings
+            gps.showSettingsAlert();
+        }
+        
 		LocationUpdate locationUpdate = new LocationUpdate();
 		ParseUser currentUser = ParseUser.getCurrentUser();
-		locationUpdate.setLat(37.7757481);
-		locationUpdate.setLng(-122.4312914);
+		locationUpdate.setLat(latitude);
+		locationUpdate.setLng(longitude);
 		locationUpdate.setType(currentEvent.getType());
 		locationUpdate.setEvent(currentEvent);
 		locationUpdate.setUser(currentUser);
@@ -425,7 +443,7 @@ public class MapDemoActivity extends FragmentActivity implements
 			}
 		} else {
 			Toast.makeText(getApplicationContext(),
-					"Sorry. Location services not available to you", Toast.LENGTH_LONG).show();
+					"Sorry. Location services not available to you", Toast.LENGTH_SHORT).show();
 		}
 	}
 
