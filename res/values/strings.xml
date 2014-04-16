@@ -34,5 +34,8 @@
     <string name="event_description">Enter Short Description</string>
     <string name="create_new_event">Create New Event</string>
     <string name="title_activity_detailed_event">DetailedEventActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="logged_in_as_label">Logged in as:</string>
+    <string name="logout_label">Logout</string>
 
 </resources>
