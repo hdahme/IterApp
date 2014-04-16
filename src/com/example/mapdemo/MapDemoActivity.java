@@ -263,6 +263,11 @@ public class MapDemoActivity extends FragmentActivity implements
 	    startActivity(i);
 	}
 
+	public void onFilterClick(MenuItem mi) {
+	    Intent i = new Intent(this, FilterActivity.class);
+        startActivity(i);
+	}
+
 	/*
 	 * Called when the Activity becomes visible.
 	 */
