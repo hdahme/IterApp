@@ -7,7 +7,7 @@
         android:icon="@drawable/ic_add_event"
         android:onClick="onAddEventClick"
         android:showAsAction="always"
-        android:title="AddEvent">
+        android:title="@string/menu_add_event">
     </item>
     
 </menu>
