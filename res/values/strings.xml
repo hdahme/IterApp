@@ -39,5 +39,6 @@
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="logged_in_as_label">Logged in as:</string>
     <string name="logout_label">Logout</string>
+    <string name="title_activity_filter">Filters</string>
 
 </resources>
