@@ -1,7 +1,5 @@
 package com.example.mapdemo.models;
 
-import java.util.Comparator;
-
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
