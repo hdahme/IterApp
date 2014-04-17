@@ -1,6 +1,7 @@
 package com.example.mapdemo.models;
 
 import com.parse.ParseClassName;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -10,11 +11,24 @@ public class LocationUpdate extends ParseObject implements Comparable<LocationUp
 	public LocationUpdate() {
 		super();
 	}
+	public ParseGeoPoint getLocation() {
+	    return getParseGeoPoint("location");
+	}
 	public double getLat() {
-		return getDouble("lat");
+	    ParseGeoPoint geoPoint = this.getLocation();
+	    double value = 0;
+	    if (geoPoint != null) {
+	        value = geoPoint.getLatitude();
+	    }
+	    return value;
 	}
 	public double getLng() {
-		return getDouble("lng");
+	    ParseGeoPoint geoPoint = this.getLocation();
+        double value = 0;
+        if (geoPoint != null) {
+            value = geoPoint.getLongitude();
+        }
+        return value;
 	}
 	public long getTimestamp() {
 		return getLong("timestamp");
@@ -34,11 +48,28 @@ public class LocationUpdate extends ParseObject implements Comparable<LocationUp
 	public void setEvent(ParseObject event) {
 		put("event", event);
 	}
+	public void setLocation(ParseGeoPoint geoPoint) {
+	    put("location", geoPoint);
+	}
+	public void setLocation(double lat, double lng) {
+	    ParseGeoPoint geoPoint = new ParseGeoPoint(lat, lng);
+        put("location", geoPoint);
+    }
 	public void setLat(double lat) {
-		put("lat", lat);
+	    ParseGeoPoint geoPoint = this.getLocation();
+	    if (geoPoint == null) {
+	        geoPoint = new ParseGeoPoint();
+	    }
+	    geoPoint.setLatitude(lat);
+	    put("location", geoPoint);
 	}
 	public void setLng(double lng) {
-		put("lng", lng);
+	    ParseGeoPoint geoPoint = this.getLocation();
+	    if (geoPoint == null) {
+            geoPoint = new ParseGeoPoint();
+        }
+        geoPoint.setLongitude(lng);
+        put("location", geoPoint);
 	}
 	public void setUser(ParseUser user) {
 		put("user", user);
