@@ -15,4 +15,6 @@ Sexy Slider : https://github.com/6wunderkinder/android-sliding-layer-lib
 
 GMaps : http://guides.thecodepath.com/android/Google-Maps-Fragment-Guide
 
+How to pull FB friends : https://parse.com/questions/how-can-i-find-parse-users-that-are-facebook-friends-with-the-current-user
+
 
