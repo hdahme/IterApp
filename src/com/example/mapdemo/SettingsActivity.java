@@ -20,7 +20,7 @@ public class SettingsActivity extends Activity {
         this.tvUsername = (TextView) findViewById(R.id.tvUsername);
         
         ParseUser currUser = ParseUser.getCurrentUser();
-        this.tvUsername.setText(currUser.getUsername());
+        this.tvUsername.setText(currUser.getString("name"));
     }
 
     @Override

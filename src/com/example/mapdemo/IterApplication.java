@@ -6,6 +6,7 @@ import com.example.mapdemo.models.Event;
 import com.example.mapdemo.models.LocationUpdate;
 import com.parse.Parse;
 import com.parse.ParseACL;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 
 public class IterApplication extends Application {
@@ -19,6 +20,7 @@ public class IterApplication extends Application {
 		ParseObject.registerSubclass(Event.class);
 		ParseObject.registerSubclass(LocationUpdate.class);
 		Parse.initialize(this, IterApplication.APPLICATION_ID, IterApplication.CLIENT_KEY);
+		ParseFacebookUtils.initialize(Integer.toString(R.string.app_id));
 
 		ParseACL defaultACL = new ParseACL();
 		defaultACL.setPublicReadAccess(true);

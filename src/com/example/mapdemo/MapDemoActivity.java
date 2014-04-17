@@ -27,6 +27,9 @@ import android.widget.Toast;
 
 import com.example.mapdemo.models.Event;
 import com.example.mapdemo.models.LocationUpdate;
+import com.facebook.Request;
+import com.facebook.Response;
+import com.facebook.model.GraphUser;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -43,7 +46,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.parse.FindCallback;
+import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -68,16 +73,18 @@ public class MapDemoActivity extends FragmentActivity implements
 	// Only makes sense to fetch as often as they're sent
 	private int fetchEventInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES; 
 	private int sendLocationInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES;
-	private int amountOfHistoryToPull = 1000 * 60 * 60 * 24; // 1 day
+	private int amountOfHistoryToPull = 1000 * 60 * 60 * 24; // 1 day, should be = sendLocationInterval
 	private Handler fetchEventHandler;
 	private Handler sendLocationHandler;
 	private Event currentEvent;
 	private Event temporaryEvent;
+	private ParseUser temporaryUser;
 	private ParseUser currentUser;
 	private EventFilters eventFilters = null;
 	private static final int FILTERS_REQUEST_CODE = 1;
 	
 	public static final int NEW_EVENT_CODE = 100;
+	public static final int FACEBOOK_LOGIN = 314;
 	public static final String HIKE_KEY = "hike";
 	public static final String BIKE_KEY = "bike";
 	public static final String BAR_CRAWL_KEY = "bar_crawl";
@@ -102,6 +109,24 @@ public class MapDemoActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_demo_activity);
 		
+		ParseFacebookUtils.logIn(this, FACEBOOK_LOGIN, new LogInCallback() {
+			@Override
+			public void done(ParseUser user, ParseException err) {
+				if (err != null) {
+					Log.d("fbId", err.getMessage());
+				}
+				if (user == null) {
+					Log.d("fbId", "Uh oh. The user cancelled the Facebook login.");
+			    } else if (user.isNew()) {
+			    	Log.d("fbId", "User signed up and logged in through Facebook!");
+			    	getFacebookIdInBackground();
+			    } else {
+			    	Log.d("fbId", "User logged in through Facebook!");
+			    	getFacebookIdInBackground();
+			    }
+			}
+		});
+		
 		buildHashMaps();
 		bindViews();
 		
@@ -116,10 +141,21 @@ public class MapDemoActivity extends FragmentActivity implements
 			        query.findInBackground(new FindCallback<Event>() {
 						public void done(List<Event> events, ParseException e) {
 							temporaryEvent = events.get(0);
-							if (!slidingLayer.isOpened()) {
-								populateSlider();
-								slidingLayer.openLayer(true);
-				            }
+							
+							// Once we know the event we've clicked, query again to get information about the host
+							// Ideally this could be extended to include profile photos, etc
+							ParseQuery<ParseUser> query = ParseUser.getQuery();
+							query.whereEqualTo("objectId", temporaryEvent.getOwner().getObjectId());
+					        query.findInBackground(new FindCallback<ParseUser>() {
+								public void done(List<ParseUser> hosts, ParseException e) {
+									temporaryUser = hosts.get(0);
+									
+									if (!slidingLayer.isOpened()) {
+										populateSlider();
+										slidingLayer.openLayer(true);
+						            }
+								}
+					        });
 						}
 			        });
 					return true;
@@ -127,7 +163,7 @@ public class MapDemoActivity extends FragmentActivity implements
 			});
 			
 			if (map != null) {
-				Toast.makeText(this, "Map Fragment was loaded properly!", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(this, "Map Fragment was loaded properly!", Toast.LENGTH_SHORT).show();
 				map.setMyLocationEnabled(true);
 			} else {
 				Toast.makeText(this, "Error - Map was null!!", Toast.LENGTH_SHORT).show();
@@ -191,7 +227,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		
 		negativeButton.setText(R.string.cancel);
 		slideAttendeeCount.setText(temporaryEvent.getNumberOfParticipants() + " Attendees");
-		slideHost.setText("Harrison");
+		slideHost.setText(temporaryUser.getString("name"));
 		slideEventDescription.setText(temporaryEvent.getDescription());
 		slideEventTitle.setText(temporaryEvent.getTitle());
 	}
@@ -322,6 +358,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	}
 	
 	public void fetchEventLocations() {
+		map.clear();
 		ParseQuery<LocationUpdate> query = ParseQuery.getQuery(LocationUpdate.class);
 		query.orderByDescending("timestamp");
 		query.whereGreaterThan("timestamp", System.currentTimeMillis() - amountOfHistoryToPull);
@@ -341,7 +378,6 @@ public class MapDemoActivity extends FragmentActivity implements
 	public void renderEventHistoryAndIcons() {
 		int decayAmount = 0;
 		// Wipe all old icons, polylines, etc
-		map.clear();
 		for (int i = 0; i < MapDemoActivity.eventLocations.size(); i++) {
 			LocationUpdate l = MapDemoActivity.eventLocations.get(i);
 			LocationUpdate otherL = null;
@@ -443,6 +479,9 @@ public class MapDemoActivity extends FragmentActivity implements
 		} else if (resultCode == RESULT_OK && requestCode == MapDemoActivity.FILTERS_REQUEST_CODE) {
 		    this.eventFilters = (EventFilters) data.getExtras().getSerializable(EventFilters.EXTRAS_KEY);
 		    this.fetchEventData();
+		} else if (requestCode == MapDemoActivity.FACEBOOK_LOGIN) {
+			super.onActivityResult(requestCode, resultCode, data);
+			ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
 		}
 
 		// Decide what to do based on the original request code
@@ -496,12 +535,12 @@ public class MapDemoActivity extends FragmentActivity implements
 		// Display the connection status
 		Location location = mLocationClient.getLastLocation();
 		if (location != null) {
-			Toast.makeText(this, "GPS location was found!", Toast.LENGTH_SHORT).show();
+			//Toast.makeText(this, "GPS location was found!", Toast.LENGTH_SHORT).show();
 			LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
 			map.animateCamera(cameraUpdate);
 		} else {
-			Toast.makeText(this, "Current location was null, enable GPS on emulator!", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "Please enable GPS", Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -582,4 +621,17 @@ public class MapDemoActivity extends FragmentActivity implements
         }
     }
 
+	private void getFacebookIdInBackground() {
+		Request.newMeRequest(ParseFacebookUtils.getSession(), new Request.GraphUserCallback() {
+			@Override
+			public void onCompleted(GraphUser user, Response response) {
+				if (user != null) {
+			        ParseUser.getCurrentUser().put("fbId", user.getId());
+			        ParseUser.getCurrentUser().put("name", user.getName());
+			        ParseUser.getCurrentUser().saveInBackground();
+			        Log.d("fbId", user.getId());
+			      }
+			}
+		  }).executeAsync();
+		}
 }

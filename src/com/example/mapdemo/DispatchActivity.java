@@ -12,10 +12,7 @@ public class DispatchActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (ParseUser.getCurrentUser() != null) {
-            startActivity(new Intent(this, MapDemoActivity.class));
-        } else {
-            startActivity(new Intent(this, LoginActivity.class));
-        }
+        
+        startActivity(new Intent(this, MapDemoActivity.class));
     }
 }

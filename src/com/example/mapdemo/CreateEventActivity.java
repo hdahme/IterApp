@@ -85,14 +85,6 @@ public class CreateEventActivity extends Activity {
 			return;
 		}
 		
-		// Get the username to save with the event
-	    SharedPreferences loginPrefs = getSharedPreferences(LoginActivity.LOGIN_PREFS_NAME, 0);
-	    String username = loginPrefs.getString("username", "");
-	    if(username.equals("")){
-			Toast.makeText(this, "Error Loading Username", Toast.LENGTH_SHORT).show();
-			return;
-	    }
-		
 		// Create the event object to save
 		newEvent = new Event();
 		ParseUser currentUser = ParseUser.getCurrentUser();

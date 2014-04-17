@@ -22,7 +22,7 @@
         android:layout_toRightOf="@+id/tvLoggedInAs"
         android:layout_alignBaseline="@+id/tvLoggedInAs"
         android:layout_marginLeft="10dp"
-        android:text="@string/username_label" />
+        android:text="" />
 
     <Button
         android:id="@+id/btnLogout"
