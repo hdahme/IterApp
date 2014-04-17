@@ -45,6 +45,7 @@
                 style="@style/ButtonRed"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
+                android:layout_alignRight="@+id/tvSlideHost"
                 android:layout_marginBottom="53dp"
                 android:onClick="onPositiveButtonPress"
                 android:text="@string/join" />
@@ -64,19 +65,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentRight="true"
                 android:layout_below="@+id/tvSlideEventTitle"
-                android:textAlignment="textEnd"
-                android:text="" />
-
-            <TextView
-                android:id="@+id/tvSlideAttendeeCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/tvSlideHost"
-                android:textAlignment="viewEnd"
+                android:layout_toLeftOf="@+id/textView1"
+                android:gravity="right"
                 android:text="" />
 
             <Button
@@ -85,8 +76,26 @@
                 android:layout_alignBaseline="@+id/btnPositive"
                 android:layout_alignBottom="@+id/btnPositive"
                 android:layout_alignParentRight="true"
+                android:layout_toRightOf="@+id/tvSlideHost"
                 android:onClick="onNegativeButtonPress"
                 android:text="@string/cancel" />
+
+            <TextView
+                android:id="@+id/tvSlideAttendeeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/tvSlideHost"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/tvSlideEventTitle"
+                android:layout_toRightOf="@+id/textView1"
+                android:gravity="right" />
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvSlideEventTitle"
+                android:layout_centerHorizontal="true" />
 
         </RelativeLayout>
         
