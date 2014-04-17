@@ -102,6 +102,7 @@ public class CreateEventActivity extends Activity {
 		// Map spinner value to internal event type
 		newEvent.setType(MapDemoActivity.coloquialTypeName.get(spinner.getSelectedItem().toString()));
 		newEvent.setActive(true);
+		newEvent.setNumberOfParticipants(1);
 		newEvent.setOwner(currentUser);		
 
 		newEvent.saveInBackground(new SaveCallback(){

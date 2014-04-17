@@ -57,4 +57,12 @@ public class Event extends ParseObject implements Serializable{
     public void setDescription(String description) {
         put("description", description);
     }
+    
+    public int getNumberOfParticipants() {
+    	return getInt("numberOfParticipants");
+    }
+    
+    public void setNumberOfParticipants(int n) {
+    	put("numberOfParticipants", n);
+    }
 }

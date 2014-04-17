@@ -7,9 +7,7 @@ import java.util.Map;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
@@ -19,8 +17,12 @@ import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mapdemo.models.Event;
@@ -45,6 +47,7 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.slidinglayer.SlidingLayer;
 
 public class MapDemoActivity extends FragmentActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
@@ -53,6 +56,15 @@ public class MapDemoActivity extends FragmentActivity implements
 	private SupportMapFragment mapFragment;
 	private GoogleMap map;
 	private LocationClient mLocationClient;
+	private SlidingLayer slidingLayer;
+	private Button positiveButton;
+	private Button negativeButton;
+	private TextView slideEventTitle;
+	private TextView slideEventDescription;
+	private TextView slideHost;
+	private TextView slideAttendeeCount;
+	
+	
 	// Only makes sense to fetch as often as they're sent
 	private int fetchEventInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES; 
 	private int sendLocationInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES;
@@ -60,8 +72,8 @@ public class MapDemoActivity extends FragmentActivity implements
 	private Handler fetchEventHandler;
 	private Handler sendLocationHandler;
 	private Event currentEvent;
+	private Event temporaryEvent;
 	private ParseUser currentUser;
-	private AlertDialog.Builder dialogBuilder;
 	private EventFilters eventFilters = null;
 	private static final int FILTERS_REQUEST_CODE = 1;
 	
@@ -90,25 +102,11 @@ public class MapDemoActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_demo_activity);
 		
-		// Initialize the mapping of event type to drawable resource
-		if (MapDemoActivity.eventTypeMap.size() == 0) {
-			MapDemoActivity.eventTypeMap.put(BIKE_KEY, R.drawable.ic_bike);
-			MapDemoActivity.eventTypeMap.put(HIKE_KEY, R.drawable.ic_hike);
-			MapDemoActivity.eventTypeMap.put(BAR_CRAWL_KEY, R.drawable.ic_beer);
-		}
+		buildHashMaps();
+		bindViews();
 		
-		// Initialize the mapping of event type to drawable resource
-		if (MapDemoActivity.coloquialTypeName.size() == 0) {
-			String[] strArray = getResources().getStringArray(R.array.select_event);
-			MapDemoActivity.coloquialTypeName.put(strArray[1], BIKE_KEY);
-			MapDemoActivity.coloquialTypeName.put(strArray[2], HIKE_KEY);
-			MapDemoActivity.coloquialTypeName.put(strArray[3], BAR_CRAWL_KEY);
-		}
-		currentUser = ParseUser.getCurrentUser();
-		dialogBuilder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK);
+		currentUser = ParseUser.getCurrentUser();	
 		
-		mLocationClient = new LocationClient(this, this, this);
-		mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
 		if (mapFragment != null) {
 			map = mapFragment.getMap();
 			map.setOnMarkerClickListener(new OnMarkerClickListener() {
@@ -116,45 +114,12 @@ public class MapDemoActivity extends FragmentActivity implements
 					ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
 					query.whereEqualTo("objectId", marker.getTitle());
 			        query.findInBackground(new FindCallback<Event>() {
-			        	private Event event;
 						public void done(List<Event> events, ParseException e) {
-							event = events.get(0);
-							dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog, int which) {
-								}
-							});
-			        		
-							if (currentEvent == null) {
-								dialogBuilder.setPositiveButton(R.string.join, new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int which) {
-										Toast.makeText(getBaseContext(), "Joining event", Toast.LENGTH_SHORT).show();
-										currentEvent = event;
-									}
-								});
-							} else if (((String)currentEvent.getOwner().getObjectId()).equals(currentUser.getObjectId())) {
-								dialogBuilder.setPositiveButton(R.string.end_event, new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int which) {
-										Toast.makeText(getBaseContext(), "Ending event", Toast.LENGTH_SHORT).show();
-										currentEvent.setActive(false);
-										currentEvent.saveInBackground(new SaveCallback(){
-											public void done(ParseException e) {}
-										});
-										currentEvent = null;
-										stopSendingLocation();
-									}
-								});
-							} else {
-								dialogBuilder.setPositiveButton(R.string.leave, new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int which) {
-										Toast.makeText(getBaseContext(), "Leaving event", Toast.LENGTH_SHORT).show();
-										currentEvent = null;
-									}
-								});
-							}
-							dialogBuilder.setTitle(event.getTitle())
-								.setMessage(event.getDescription());
-							AlertDialog d = dialogBuilder.create();
-							d.show();
+							temporaryEvent = events.get(0);
+							if (!slidingLayer.isOpened()) {
+								populateSlider();
+								slidingLayer.openLayer(true);
+				            }
 						}
 			        });
 					return true;
@@ -173,8 +138,103 @@ public class MapDemoActivity extends FragmentActivity implements
 		fetchEventData();
 		fetchEventHandler = new Handler();
 		sendLocationHandler = new Handler();
-		
+	}
+	
+	public void buildHashMaps() {
+		// Initialize the mapping of event type to drawable resource
+		if (MapDemoActivity.eventTypeMap.size() == 0) {
+			MapDemoActivity.eventTypeMap.put(BIKE_KEY, R.drawable.ic_bike);
+			MapDemoActivity.eventTypeMap.put(HIKE_KEY, R.drawable.ic_hike);
+			MapDemoActivity.eventTypeMap.put(BAR_CRAWL_KEY, R.drawable.ic_beer);
+		}
 
+		// Initialize the mapping of event type to drawable resource
+		if (MapDemoActivity.coloquialTypeName.size() == 0) {
+			String[] strArray = getResources().getStringArray(R.array.select_event);
+			MapDemoActivity.coloquialTypeName.put(strArray[1], BIKE_KEY);
+			MapDemoActivity.coloquialTypeName.put(strArray[2], HIKE_KEY);
+			MapDemoActivity.coloquialTypeName.put(strArray[3], BAR_CRAWL_KEY);
+		}
+	}
+	
+	public void bindViews() {
+		mLocationClient = new LocationClient(this, this, this);
+		mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
+		
+		positiveButton = (Button)findViewById(R.id.btnPositive);
+		negativeButton = (Button)findViewById(R.id.btnNegative);
+		slideEventTitle = (TextView)findViewById(R.id.tvSlideEventTitle);
+		slideEventDescription = (TextView)findViewById(R.id.tvSlideEventDescription);
+		slideHost = (TextView)findViewById(R.id.tvSlideHost);
+		slideAttendeeCount = (TextView)findViewById(R.id.tvSlideAttendeeCount);
+		
+		// Draw the sliding panel at the bottom of the map
+		slidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
+
+		slidingLayer.setShadowWidthRes(R.dimen.shadow_width);
+		slidingLayer.setOffsetWidth(25);
+		slidingLayer.setShadowDrawable(R.drawable.sidebar_shadow);
+		slidingLayer.setStickTo(SlidingLayer.STICK_TO_BOTTOM);
+		slidingLayer.setCloseOnTapEnabled(false);
+	}
+	
+	public void populateSlider() {
+		if (currentEvent == null) {
+			positiveButton.setText(R.string.join);
+		} else if (((String)temporaryEvent.getOwner().getObjectId()).equals(currentUser.getObjectId())) {
+			positiveButton.setText(R.string.end_event);
+		} else if (temporaryEvent != null){
+			positiveButton.setText(R.string.leave);
+		} else {
+			positiveButton.setText("=)");
+		}
+		
+		negativeButton.setText(R.string.cancel);
+		slideAttendeeCount.setText(temporaryEvent.getNumberOfParticipants() + " Attendees");
+		slideHost.setText("Harrison");
+		slideEventDescription.setText(temporaryEvent.getDescription());
+		slideEventTitle.setText(temporaryEvent.getTitle());
+	}
+	
+	public void onPositiveButtonPress(View v) {
+		String tempEventOwnerId = (String)temporaryEvent.getOwner().getObjectId();
+		if (currentEvent == null) {
+			Toast.makeText(getBaseContext(), "Joining event", Toast.LENGTH_SHORT).show();
+			temporaryEvent.setNumberOfParticipants(temporaryEvent.getNumberOfParticipants()+1);
+			temporaryEvent.saveInBackground(new SaveCallback(){
+				public void done(ParseException e) { fetchEventLocations(); }
+			});
+			currentEvent = temporaryEvent;
+			
+		} else if (tempEventOwnerId.equals(currentUser.getObjectId())) {
+			Toast.makeText(getBaseContext(), "Ending event", Toast.LENGTH_SHORT).show();
+			temporaryEvent.setActive(false);
+			temporaryEvent.setNumberOfParticipants(currentEvent.getNumberOfParticipants()-1);
+			temporaryEvent.saveInBackground(new SaveCallback(){
+				public void done(ParseException e) {fetchEventLocations();}
+			});
+			currentEvent = null;
+			stopSendingLocation();
+		} else if (temporaryEvent != null){
+			Toast.makeText(getBaseContext(), "Leaving event", Toast.LENGTH_SHORT).show();
+			temporaryEvent.setNumberOfParticipants(currentEvent.getNumberOfParticipants()-1);
+			temporaryEvent.saveInBackground(new SaveCallback(){
+				public void done(ParseException e) {fetchEventLocations();}
+			});
+			currentEvent = null;
+		}
+		
+		if (slidingLayer.isOpened()) {
+			temporaryEvent = null;
+			slidingLayer.closeLayer(true);
+        }
+	}
+	
+	public void onNegativeButtonPress(View v) {
+		if (slidingLayer.isOpened()) {
+			temporaryEvent = null;
+			slidingLayer.closeLayer(true);
+        }
 	}
 	
 	Runnable fetchEventLocations = new Runnable() {
@@ -507,5 +567,19 @@ public class MapDemoActivity extends FragmentActivity implements
 			return mDialog;
 		}
 	}
+	
+	@Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+        case KeyEvent.KEYCODE_BACK:
+            if (slidingLayer.isOpened()) {
+            	slidingLayer.closeLayer(true);
+                return true;
+            }
+
+        default:
+            return super.onKeyDown(keyCode, event);
+        }
+    }
 
 }

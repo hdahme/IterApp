@@ -9,5 +9,87 @@
 	   class="com.google.android.gms.maps.SupportMapFragment"
 	   android:layout_width="match_parent"
 	   android:layout_height="match_parent"/>
+	
+	<com.slidinglayer.SlidingLayer
+	    xmlns:slidingLayer="http://schemas.android.com/apk/res-auto"
+	    android:id="@+id/slidingLayer1"
+	    android:layout_width="@dimen/layer_width"
+	    android:layout_height="match_parent"
+	    slidingLayer:shadowDrawable="@drawable/sidebar_shadow"
+	    slidingLayer:shadowWidth="@dimen/shadow_width"
+	    slidingLayer:offsetWidth="@dimen/offset_width"
+	    slidingLayer:stickTo="bottom"
+	    slidingLayer:closeOnTapEnabled="true">
+	    
+	    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#cccccccc">
+
+            <TextView
+                android:id="@+id/tvSlideEventTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:drawablePadding="15dip"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:paddingBottom="80dp"
+                android:textColor="#074035"
+                android:textSize="17sp" />
+
+            <Button
+                android:id="@+id/btnPositive"
+                style="@style/ButtonRed"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginBottom="53dp"
+                android:onClick="onPositiveButtonPress"
+                android:text="@string/join" />
+
+            <TextView
+                android:id="@+id/tvSlideEventDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/btnPositive"
+                android:layout_alignParentLeft="true"
+                android:layout_alignRight="@+id/btnNegative"
+                android:layout_below="@+id/tvSlideAttendeeCount"
+                android:text="" />
+
+            <TextView
+                android:id="@+id/tvSlideHost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/tvSlideEventTitle"
+                android:textAlignment="textEnd"
+                android:text="" />
+
+            <TextView
+                android:id="@+id/tvSlideAttendeeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/tvSlideHost"
+                android:textAlignment="viewEnd"
+                android:text="" />
+
+            <Button
+                android:id="@+id/btnNegative"
+                style="@style/ButtonRed"
+                android:layout_alignBaseline="@+id/btnPositive"
+                android:layout_alignBottom="@+id/btnPositive"
+                android:layout_alignParentRight="true"
+                android:onClick="onNegativeButtonPress"
+                android:text="@string/cancel" />
+
+        </RelativeLayout>
+        
+	</com.slidinglayer.SlidingLayer>
     
 </RelativeLayout>
