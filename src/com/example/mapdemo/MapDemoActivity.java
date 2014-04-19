@@ -8,7 +8,10 @@ import java.util.Map;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.graphics.Color;
 import android.location.Location;
@@ -56,7 +59,8 @@ import com.slidinglayer.SlidingLayer;
 
 public class MapDemoActivity extends FragmentActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener {
+		GooglePlayServicesClient.OnConnectionFailedListener,
+		GPSListenerUpdate{
 
 	private SupportMapFragment mapFragment;
 	private GoogleMap map;
@@ -174,6 +178,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		fetchEventData();
 		fetchEventHandler = new Handler();
 		sendLocationHandler = new Handler();
+	
 	}
 	
 	public void buildHashMaps() {
@@ -266,6 +271,10 @@ public class MapDemoActivity extends FragmentActivity implements
         }
 	}
 	
+	private void stopSendingLocation() {
+		gps.stopUsingGPS();		
+	}
+
 	public void onNegativeButtonPress(View v) {
 		if (slidingLayer.isOpened()) {
 			temporaryEvent = null;
@@ -280,29 +289,14 @@ public class MapDemoActivity extends FragmentActivity implements
 		}
 	};
 	
-	Runnable sendLocation = new Runnable() {
-		public void run() {
-			sendLocation();
-			sendLocationHandler.postDelayed(sendLocation, sendLocationInterval);
-		}
-	};
 	
 	private void startFetchingEventLocations() {
 		fetchEventLocations.run();
 	}
 	
-	private void startSendingLocation() {
-		gps = new GPSTracking(MapDemoActivity.this);
-		sendLocation.run();
-	}
 	
 	private void stopFetchingEventLocations() {		
 		fetchEventHandler.removeCallbacks(fetchEventLocations);
-	}
-	
-	private void stopSendingLocation() {
-		gps.stopUsingGPS();
-		sendLocationHandler.removeCallbacks(sendLocation);
 	}
 	
 	public void fetchEventData() {
@@ -327,6 +321,7 @@ public class MapDemoActivity extends FragmentActivity implements
             }
         });
 	}
+		
 	
 	public void sendLocation() {
 
@@ -472,7 +467,7 @@ public class MapDemoActivity extends FragmentActivity implements
 				@Override
 				public void done(List<Event> events, ParseException e) {
 					currentEvent = events.get(0);
-					startSendingLocation();
+					gps = new GPSTracking(MapDemoActivity.this);
 					fetchEventLocations();
 				}
 	        });
@@ -634,4 +629,9 @@ public class MapDemoActivity extends FragmentActivity implements
 			}
 		  }).executeAsync();
 		}
+
+	@Override
+	public void ReceiveGPSData() {
+		sendLocation();
+	}
 }

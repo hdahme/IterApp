@@ -13,6 +13,10 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
  
+interface GPSListenerUpdate {
+    public void ReceiveGPSData();
+} 
+
 public class GPSTracking extends Service implements LocationListener {
  
     private final Context mContext;
@@ -42,6 +46,8 @@ public class GPSTracking extends Service implements LocationListener {
     // Declaring a Location Manager
     protected LocationManager locationManager;
  
+    GPSListenerUpdate gpsListener;
+    
     public GPSTracking(Context context) {
         this.mContext = context;
         getLocation();
@@ -107,6 +113,11 @@ public class GPSTracking extends Service implements LocationListener {
         return location;
     }
      
+    public void addGPSUpdateListener(GPSListenerUpdate listen){
+    	gpsListener = listen;
+    }
+    
+    
     /**
      * Stop using GPS listener
      * Calling this function will stop using GPS in your app
@@ -184,12 +195,7 @@ public class GPSTracking extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
     	this.location = location;
-    	Intent broadcastIntent = new Intent("com.codepath.broadcast.gps.location_change");
-    	Bundle values = new Bundle();
-    	values.putDouble(latitudeValue, latitude);
-    	values.putDouble(longitudeValue, longitude);
-    	broadcastIntent.putExtras(values);
-    	sendBroadcast(broadcastIntent);
+    	gpsListener.ReceiveGPSData();
     }
  
     @Override
