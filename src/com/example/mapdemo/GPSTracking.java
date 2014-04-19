@@ -31,7 +31,7 @@ public class GPSTracking extends Service implements LocationListener {
     double longitude; // longitude
  
     // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0; // 10 meters
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 20; // 10 meters
  
     // The minimum time between updates in milliseconds
     public static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
@@ -157,7 +157,7 @@ public class GPSTracking extends Service implements LocationListener {
         alertDialog.setTitle("GPS is settings");
   
         // Setting Dialog Message
-        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
+        alertDialog.setMessage("GPS is not enabled. Please enable it.");
   
         // On pressing Settings button
         alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
