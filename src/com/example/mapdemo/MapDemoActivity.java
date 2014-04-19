@@ -330,8 +330,8 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	public void sendLocation() {
 
-		double latitude = -1;
-		double longitude = -1;
+		double latitude = 0;
+		double longitude = 0;
         // check if GPS enabled     
         if(gps.canGetLocation()){
              

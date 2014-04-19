@@ -29,12 +29,15 @@ public class GPSTracking extends Service implements LocationListener {
     Location location; // location
     double latitude; // latitude
     double longitude; // longitude
+    
+    public static String longitudeValue = "longitudeValue";
+    public static String latitudeValue = "latitudeValue";
  
     // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 20; // 10 meters
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0; // 10 meters
  
     // The minimum time between updates in milliseconds
-    public static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
+    public static final long MIN_TIME_BW_UPDATES = 1000 * 10 * 1; // 1 minute
  
     // Declaring a Location Manager
     protected LocationManager locationManager;
@@ -154,10 +157,10 @@ public class GPSTracking extends Service implements LocationListener {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
       
         // Setting Dialog Title
-        alertDialog.setTitle("GPS is settings");
+        alertDialog.setTitle("GPS Settings");
   
         // Setting Dialog Message
-        alertDialog.setMessage("GPS is not enabled. Please enable it.");
+        alertDialog.setMessage("Please enable GPS settings.");
   
         // On pressing Settings button
         alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
@@ -181,6 +184,12 @@ public class GPSTracking extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
     	this.location = location;
+    	Intent broadcastIntent = new Intent("com.codepath.broadcast.gps.location_change");
+    	Bundle values = new Bundle();
+    	values.putDouble(latitudeValue, latitude);
+    	values.putDouble(longitudeValue, longitude);
+    	broadcastIntent.putExtras(values);
+    	sendBroadcast(broadcastIntent);
     }
  
     @Override
