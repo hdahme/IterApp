@@ -48,6 +48,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.clustering.ClusterManager;
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -72,7 +73,6 @@ public class MapDemoActivity extends FragmentActivity implements
 	private TextView slideEventDescription;
 	private TextView slideHost;
 	private TextView slideAttendeeCount;
-	
 	
 	// Only makes sense to fetch as often as they're sent
 	private int fetchEventInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES; 
@@ -101,6 +101,8 @@ public class MapDemoActivity extends FragmentActivity implements
 	public static List<LocationUpdate> eventLocations;
 
 	GPSTracking gps;
+    // Declare a variable for the cluster manager.
+    private ClusterManager<LocationUpdate> mClusterManager;
 	
 	/*
 	 * Define a request code to send to Google Play services This code is
@@ -178,6 +180,8 @@ public class MapDemoActivity extends FragmentActivity implements
 		fetchEventData();
 		fetchEventHandler = new Handler();
 		sendLocationHandler = new Handler();
+		
+		setUpClusterer();
 	
 	}
 	
@@ -633,5 +637,43 @@ public class MapDemoActivity extends FragmentActivity implements
 	@Override
 	public void ReceiveGPSData() {
 		sendLocation();
+	}
+	
+	// Set up clustering functionality
+	private void setUpClusterer() {
+
+
+	    // Position the map.
+		mapFragment.getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
+
+	    // Initialize the manager with the context and the map.
+	    // (Activity extends context, so we can pass 'this' in the constructor.)
+	    mClusterManager = new ClusterManager<LocationUpdate>(this, mapFragment.getMap());
+
+	    // Point the map's listeners at the listeners implemented by the cluster
+	    // manager.
+	    mapFragment.getMap().setOnCameraChangeListener(mClusterManager);
+	    mapFragment.getMap().setOnMarkerClickListener(mClusterManager);
+
+	    // Add cluster items (markers) to the cluster manager.
+	    addItems();
+	}
+
+	private void addItems() {
+
+	    // Set some lat/lng coordinates to start with.
+	    double lat = 51.5145160;
+	    double lng = -0.1270060;
+
+	    // Add ten cluster items in close proximity, for purposes of this example.
+	    for (int i = 0; i < 10; i++) {
+	        double offset = i / 60d;
+	        lat = lat + offset;
+	        lng = lng + offset;
+	        LocationUpdate offsetItem = new LocationUpdate();
+	        offsetItem.setLat(lat);
+	        offsetItem.setLng(lng);
+	        mClusterManager.addItem(offsetItem);
+	    }
 	}
 }
