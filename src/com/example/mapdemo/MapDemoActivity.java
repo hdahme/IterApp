@@ -662,8 +662,8 @@ public class MapDemoActivity extends FragmentActivity implements
 	private void addItems() {
 
 	    // Set some lat/lng coordinates to start with.
-	    double lat = 51.5145160;
-	    double lng = -0.1270060;
+	    double lat = 37.8109434617376;
+	    double lng = -122.25746404705464;
 
 	    // Add ten cluster items in close proximity, for purposes of this example.
 	    for (int i = 0; i < 10; i++) {
