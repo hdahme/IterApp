@@ -343,7 +343,7 @@ public class MapDemoActivity extends FragmentActivity implements
             // can't get location
             // GPS or Network is not enabled
             // Ask user to enable GPS/network in settings
-            gps.showSettingsAlert();
+            //gps.showSettingsAlert();
         }
         
 		LocationUpdate locationUpdate = new LocationUpdate();
