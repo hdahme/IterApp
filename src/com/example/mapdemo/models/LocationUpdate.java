@@ -9,9 +9,7 @@ import com.parse.ParseUser;
 
 @ParseClassName("LocationUpdate")
 public class LocationUpdate extends ParseObject implements Comparable<LocationUpdate>,ClusterItem{
-	
-	private LatLng mPosition;
-	
+
 	public LocationUpdate() {
 		super();
 	}
@@ -90,12 +88,18 @@ public class LocationUpdate extends ParseObject implements Comparable<LocationUp
 		return this.getEvent().getObjectId() + ",  " + this.getLat() + ",  " + 
 			this.getLng() + ",  " + this.getTimestamp();
 	}
+
 	@Override
 	public LatLng getPosition() {
-		return getMyPosLatLng();
-	}
-	private LatLng getMyPosLatLng() {
-		// TODO Auto-generated method stub
-		return new LatLng(getLat(), getLng()); 
+	    double latitude = 0;
+	    double longitude = 0;
+
+	    ParseGeoPoint geoPoint = this.getLocation();
+	    if (geoPoint != null) {
+	        latitude = geoPoint.getLatitude();
+	        longitude = geoPoint.getLongitude();
+	    }
+
+	    return new LatLng(latitude, longitude);
 	}
 }
