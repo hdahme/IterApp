@@ -1,9 +1,7 @@
 package com.example.mapdemo;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -86,14 +84,9 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	public static final int NEW_EVENT_CODE = 100;
 	public static final int FACEBOOK_LOGIN = 314;
-	public static final String HIKE_KEY = "hike";
-	public static final String BIKE_KEY = "bike";
-	public static final String BAR_CRAWL_KEY = "bar_crawl";
 	public static final String EVENT = "event";
 	public static final String NEW_EVENT = "new event";
-	
-	public static final Map<String, Integer> eventTypeMap = new HashMap<String, Integer>();
-	public static final Map<String, String> coloquialTypeName = new HashMap<String, String>();
+
 	public static List<Event> eventList;
 	public static List<LocationUpdate> eventLocations;
 
@@ -129,8 +122,7 @@ public class MapDemoActivity extends FragmentActivity implements
 			    }
 			}
 		});
-		
-		buildHashMaps();
+
 		bindViews();
 		
 		currentUser = ParseUser.getCurrentUser();	
@@ -181,24 +173,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		setUpClusterer();
 	
 	}
-	
-	public void buildHashMaps() {
-		// Initialize the mapping of event type to drawable resource
-		if (MapDemoActivity.eventTypeMap.size() == 0) {
-			MapDemoActivity.eventTypeMap.put(BIKE_KEY, R.drawable.ic_bike);
-			MapDemoActivity.eventTypeMap.put(HIKE_KEY, R.drawable.ic_hike);
-			MapDemoActivity.eventTypeMap.put(BAR_CRAWL_KEY, R.drawable.ic_beer);
-		}
 
-		// Initialize the mapping of event type to drawable resource
-		if (MapDemoActivity.coloquialTypeName.size() == 0) {
-			String[] strArray = getResources().getStringArray(R.array.select_event);
-			MapDemoActivity.coloquialTypeName.put(strArray[1], BIKE_KEY);
-			MapDemoActivity.coloquialTypeName.put(strArray[2], HIKE_KEY);
-			MapDemoActivity.coloquialTypeName.put(strArray[3], BAR_CRAWL_KEY);
-		}
-	}
-	
 	public void bindViews() {
 		mLocationClient = new LocationClient(this, this, this);
 		mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
@@ -386,8 +361,7 @@ public class MapDemoActivity extends FragmentActivity implements
 				Marker mapMarker = map.addMarker(new MarkerOptions()
     		    .position(new LatLng(l.getLat(), l.getLng()))                                                      
     		    .title(l.getEvent().getObjectId())
-    		    .icon(BitmapDescriptorFactory.fromResource(
-    		    		MapDemoActivity.eventTypeMap.get(l.getType()))));
+    		    .icon(BitmapDescriptorFactory.fromResource(l.getTypeObject().getDrawableId())));
 				decayAmount = 0;
 			// Otherwise draw polylines connecting the previous location updates
 			} else {
