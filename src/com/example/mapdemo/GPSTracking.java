@@ -194,8 +194,12 @@ public class GPSTracking extends Service implements LocationListener {
  
     @Override
     public void onLocationChanged(Location location) {
-    	this.location = location;
-    	gpsListener.ReceiveGPSData();
+        this.location = location;
+        if (gpsListener != null) {
+            gpsListener.ReceiveGPSData();
+        } else {
+            Log.d("DEBUG", "gpsListener is null!");
+        }
     }
  
     @Override
