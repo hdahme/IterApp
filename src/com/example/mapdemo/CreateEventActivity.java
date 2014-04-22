@@ -13,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.mapdemo.models.Event;
+import com.example.mapdemo.models.EventType;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -91,7 +92,8 @@ public class CreateEventActivity extends Activity {
 		newEvent.setDescription(eventDescription.getText().toString());
 		newEvent.setTitle(eventName.getText().toString());
 		// Map spinner value to internal event type
-		newEvent.setType(MapDemoActivity.coloquialTypeName.get(spinner.getSelectedItem().toString()));
+		EventType eventType = EventType.fromDisplayValue(spinner.getSelectedItem().toString());
+		newEvent.setType(eventType);
 		newEvent.setActive(true);
 		newEvent.setNumberOfParticipants(1);
 		newEvent.setOwner(currentUser);		
