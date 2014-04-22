@@ -44,8 +44,14 @@ public class LocationUpdate extends ParseObject implements Comparable<LocationUp
 	public String getType() {
 		return getString("type");
 	}
+	public EventType getTypeObject() {
+	    return EventType.fromValue(this.getType());
+	}
 	public void setType(String type) {
 		put("type", type);
+	}
+	public void setType(EventType type) {
+	    put("type", type.getValue());
 	}
 	public void setEvent(ParseObject event) {
 		put("event", event);
