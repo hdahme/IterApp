@@ -26,10 +26,18 @@ public class Event extends ParseObject implements Serializable{
         return getString("type");
     }
 
+    public EventType getTypeObject() {
+        return EventType.fromValue(this.getType());
+    }
+
     public void setType(String type) {
         put("type", type);
     }
-    
+
+    public void setType(EventType type) {
+        put("type", type.getValue());
+    }
+
     public String getId() {
     	return getString("objectId");
     }
