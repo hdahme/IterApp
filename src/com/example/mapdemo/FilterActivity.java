@@ -1,7 +1,5 @@
 package com.example.mapdemo;
 
-import java.util.Map;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +7,8 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+
+import com.example.mapdemo.models.EventType;
 
 public class FilterActivity extends Activity {
     private Spinner eventTypeSpinner;
@@ -43,12 +43,10 @@ public class FilterActivity extends Activity {
 
         // populate the spinner with the current setting for type, if any
         if (this.eventFilters.type != null) {
-            for (Map.Entry<String, String> entry : MapDemoActivity.coloquialTypeName.entrySet()) {
-                if (entry.getValue().equals(this.eventFilters.type)) {
-                    int position = adapter.getPosition(entry.getKey());
-                    this.eventTypeSpinner.setSelection(position);
-                    break;
-                }
+            EventType eventType = EventType.fromValue(this.eventFilters.type);
+            if (eventType != null) {
+                int position = adapter.getPosition(eventType.getDisplayValue());
+                this.eventTypeSpinner.setSelection(position);
             }
         }
     }
@@ -56,7 +54,7 @@ public class FilterActivity extends Activity {
     public void onSave(View v) {
         String eventTypeValue = this.eventTypeSpinner.getSelectedItem().toString();
         if (!eventTypeValue.equals("Select Event Type")) {
-            this.eventFilters.type = MapDemoActivity.coloquialTypeName.get(eventTypeValue);
+            this.eventFilters.type = EventType.fromDisplayValue(eventTypeValue).getValue();
         }
 
         Intent data = new Intent();
