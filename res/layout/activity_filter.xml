@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
+        android:layout_alignBottom="@+id/spEventType"
         android:text="@string/event_type_label" />
 
     <Spinner
@@ -20,7 +20,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
         android:layout_toRightOf="@+id/tvEventTypeLabel" />
+
+    <TextView
+        android:id="@+id/tvDistanceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBottom="@+id/spDistance"
+        android:text="@string/distance_miles_label" />
+
+    <Spinner
+        android:id="@+id/spDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/spEventType"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/tvDistanceLabel" />
 
     <Button
         android:id="@+id/btnSave"
