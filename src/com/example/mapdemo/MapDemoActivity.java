@@ -368,8 +368,6 @@ public class MapDemoActivity extends FragmentActivity implements
              
             latitude = gps.getLatitude();
             longitude = gps.getLongitude();
-             
-            //Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_SHORT).show();    
         }else{
             // can't get location
             // GPS or Network is not enabled
@@ -444,12 +442,15 @@ public class MapDemoActivity extends FragmentActivity implements
 				decayAmount = 0;
 			// Otherwise draw polylines connecting the previous location updates
 			} else {
-				int c = Color.argb(Math.max(255-(decayAmount*75), 0), 0, 0, 0);				
+				int c = Color.argb(Math.max(255-(decayAmount*10), 0), 0, 0, 0);				
 				Polyline polyline = map.addPolyline(new PolylineOptions()
 				.add(new LatLng(l.getLat(), l.getLng()), 
 				     new LatLng(otherL.getLat(), otherL.getLng()))
-				.width(5)
+				.width(7)
 				.color(c));
+				
+				// Draw it above the custom overlay
+				polyline.setZIndex(1000);
 				polylines.add(polyline);
 				
 				decayAmount++;
