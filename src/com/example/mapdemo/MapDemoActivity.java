@@ -343,7 +343,9 @@ public class MapDemoActivity extends FragmentActivity implements
         query.findInBackground(new FindCallback<LocationUpdate>() {
             public void done(List<LocationUpdate> itemList, ParseException e) {
                 if (e == null) {
-                	Collections.sort(itemList);
+                    if (!itemList.isEmpty()) {
+                        Collections.sort(itemList);
+                    }
                     MapDemoActivity.eventLocations = itemList;
                     renderEventHistoryAndIcons();
                 } else {
