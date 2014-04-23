@@ -69,7 +69,6 @@ public class GPSTracking extends Service implements LocationListener {
             if (!isGPSEnabled && !isNetworkEnabled) {
                 // no network provider is enabled
             } else {
-                this.canGetLocation = true;
                 // First get location from Network Provider
                 if (isNetworkEnabled) {
                     locationManager.requestLocationUpdates(
@@ -104,6 +103,12 @@ public class GPSTracking extends Service implements LocationListener {
                         }
                     }
                 }
+
+                if(latitude == 0 && longitude == 0) 
+                	this.canGetLocation = false;
+                else
+                	this.canGetLocation = true;
+
             }
  
         } catch (Exception e) {
