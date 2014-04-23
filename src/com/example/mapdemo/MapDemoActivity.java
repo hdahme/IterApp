@@ -443,6 +443,7 @@ public class MapDemoActivity extends FragmentActivity implements
 				public void done(List<Event> events, ParseException e) {
 					currentEvent = events.get(0);
 					gps = new GPSTracking(MapDemoActivity.this);
+					gps.addGPSUpdateListener(MapDemoActivity.this);
 					fetchEventLocations();
 				}
 	        });
