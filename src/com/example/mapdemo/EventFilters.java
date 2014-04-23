@@ -47,6 +47,9 @@ public class EventFilters implements Serializable {
         if (this.type != null && !this.type.isEmpty()) {
             query.whereEqualTo("type", this.type);
         }
+        if (this.currentLocation != null && this.maxDistance > 0) {
+            query.whereWithinMiles("location", this.currentLocation, this.maxDistance);
+        }
     }
 
     @Override
