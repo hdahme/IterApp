@@ -1,5 +1,7 @@
 package com.example.mapdemo;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import com.example.mapdemo.models.EventType;
 
 public class FilterActivity extends Activity {
     private Spinner eventTypeSpinner;
+    private Spinner distanceSpinner;
 
     private EventFilters eventFilters = null;
 
@@ -49,6 +52,28 @@ public class FilterActivity extends Activity {
                 this.eventTypeSpinner.setSelection(position);
             }
         }
+
+        ArrayList<CharSequence> distances = new ArrayList<CharSequence>();
+        distances.add("any");
+        distances.add("1");
+        distances.add("5");
+        distances.add("10");
+        distances.add("25");
+        distances.add("50");
+
+        adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item, distances);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        this.distanceSpinner = (Spinner) findViewById(R.id.spDistance);
+        this.distanceSpinner.setAdapter(adapter);
+        
+        // populate the spinner with the current setting for distance, if any
+        if (this.eventFilters.maxDistance > 0) {
+            String maxDistanceString = String.valueOf((int)this.eventFilters.maxDistance);
+            int position = distances.indexOf(maxDistanceString);
+            if (position > -1) {
+                this.distanceSpinner.setSelection(position);
+            }
+        }
     }
 
     public void onSave(View v) {
@@ -57,6 +82,13 @@ public class FilterActivity extends Activity {
             this.eventFilters.type = EventType.fromDisplayValue(eventTypeValue).getValue();
         } else {
             this.eventFilters.type = null;
+        }
+
+        String distanceValue = this.distanceSpinner.getSelectedItem().toString();
+        if (!distanceValue.equals("any")) {
+            this.eventFilters.maxDistance = Double.parseDouble(distanceValue);
+        } else {
+            this.eventFilters.maxDistance = 0;
         }
 
         Intent data = new Intent();
