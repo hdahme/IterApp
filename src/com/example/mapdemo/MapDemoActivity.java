@@ -1,5 +1,6 @@
 package com.example.mapdemo;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mapdemo.models.ClusteredEvent;
 import com.example.mapdemo.models.Event;
 import com.example.mapdemo.models.LocationUpdate;
 import com.facebook.Request;
@@ -43,6 +45,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.clustering.ClusterItem;
+import com.google.maps.android.clustering.ClusterManager;
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -91,7 +95,7 @@ public class MapDemoActivity extends FragmentActivity implements
 
 	GPSTracking gps;
     // Declare a variable for the cluster manager.
-    ///private ClusterManager<Event> mClusterManager;
+    private ClusterManager<ClusteredEvent> mClusterManager;
 	
 	/*
 	 * Define a request code to send to Google Play services This code is
@@ -167,8 +171,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		}
 		fetchEventData();
 		fetchEventHandler = new Handler();
-		sendLocationHandler = new Handler();
-		
+		sendLocationHandler = new Handler();	
 		///setUpClusterer();
 	
 	}
@@ -357,6 +360,9 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	public void renderEventHistoryAndIcons() {
 		int decayAmount = 0;
+		ArrayList<Marker> markers = new ArrayList<Marker>();
+		ArrayList<MarkerOptions> markerOptions = new ArrayList<MarkerOptions>();
+		ArrayList<PolylineOptions> polyLineOptions = new ArrayList<PolylineOptions>();
 		// Wipe all old icons, polylines, etc
    		map.clear();
 		for (int i = 0; i < MapDemoActivity.eventLocations.size(); i++) {
@@ -368,7 +374,7 @@ public class MapDemoActivity extends FragmentActivity implements
 			}
 			// If it's the most recent update in a series of updates for a particular event, draw the icon
 			if (otherL == null || !l.getEvent().getObjectId().equals(otherL.getEvent().getObjectId())) {
-				Marker mapMarker = map.addMarker(new MarkerOptions()
+				markerOptions.add(new MarkerOptions()
     		    .position(new LatLng(l.getLat(), l.getLng()))                                                      
     		    .title(l.getEvent().getObjectId())
     		    .icon(BitmapDescriptorFactory.fromResource(l.getTypeObject().getDrawableId())));
@@ -385,6 +391,15 @@ public class MapDemoActivity extends FragmentActivity implements
 				decayAmount++;
 			}
 		}
+		
+		for(int i = 0; i < markerOptions.size(); i++){
+			
+			Marker mapMarker = map.addMarker(markerOptions.get(i));
+			markers.add(mapMarker);
+			
+		}
+		
+		//setUpClusterer(markers, markerOptions);
 		
 	}
 	
@@ -622,16 +637,17 @@ public class MapDemoActivity extends FragmentActivity implements
 	}
 	
 	
-	/*
+	
 	// Set up clustering functionality
-	private void setUpClusterer() {
+	private void setUpClusterer(ArrayList<Marker> markers, ArrayList<MarkerOptions> opts) {
 
 
 	    // Position the map.
-		map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
+		//map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
 
 	    // Initialize the manager with the context and the map.
-	    mClusterManager = new ClusterManager<Event>(this, mapFragment.getMap());
+	    mClusterManager = new ClusterManager<ClusteredEvent>(this, mapFragment.getMap());
+	    mClusterManager.setRenderer(new EventRenderer(this, map, mClusterManager));
 
 	    // Point the map's listeners at the listeners implemented by the cluster
 	    // manager.
@@ -639,26 +655,24 @@ public class MapDemoActivity extends FragmentActivity implements
 	    map.setOnMarkerClickListener(mClusterManager);
 
 	    // Add cluster items (markers) to the cluster manager.
-	    addItems();
+	    addItems(markers, opts);
 	}
 
-	private void addItems() {
+	private void addItems(ArrayList<Marker> markers, ArrayList<MarkerOptions> opts) {
 
-	    // Set some lat/lng coordinates to start with.
-	    double lat = 37.8109434617376;
-	    double lng = -122.25746404705464;
-
-	    // Add ten cluster items in close proximity, for purposes of this example.
-	    for (int i = 0; i < 10; i++) {
-	        double offset = i / 60d;
-	        lat = lat + offset;
-	        lng = lng + offset;
-	        Event offsetItem = new Event();
-	        offsetItem.setLat(lat);
-	        offsetItem.setLong(lng);
-	        offsetItem.setType("hike");
-	        mClusterManager.addItem(offsetItem);
+		if(markers== null)
+			return;
+		
+	    for (int i = 0; i < markers.size(); i++) {
+	       
+	    	ClusteredEvent itm = new ClusteredEvent();
+	        
+	    	LatLng coOrd = markers.get(i).getPosition();
+	    	itm.setMarker(coOrd);
+	    	itm.setMarkerOptions(opts.get(i));
+	        mClusterManager.addItem(itm);
 	    }
+	    int j = 0;
 	}
-	*/
+	
 }
