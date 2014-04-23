@@ -281,9 +281,9 @@ public class MapDemoActivity extends FragmentActivity implements
 		// Only pull active events
 		query.whereEqualTo("active", true);
 
-		if (this.eventFilters != null) {
-		    this.eventFilters.applyFiltersToEventQuery(query);
-		}
+        if (this.eventFilters != null) {
+            this.eventFilters.applyFiltersToEventQuery(query);
+        }
 
         query.findInBackground(new FindCallback<Event>() {
             public void done(List<Event> itemList, ParseException e) {
@@ -331,7 +331,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	public void fetchEventLocations() {
 		map.clear();
 		ParseQuery<LocationUpdate> query = ParseQuery.getQuery(LocationUpdate.class);
-		if (this.eventFilters != null) {
+        if (this.eventFilters != null) {
             this.eventFilters.applyFiltersToLocationUpdateQuery(query);
         }
 		query.orderByDescending("timestamp");
