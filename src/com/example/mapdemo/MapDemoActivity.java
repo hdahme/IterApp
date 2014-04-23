@@ -250,7 +250,8 @@ public class MapDemoActivity extends FragmentActivity implements
 	}
 	
 	private void stopSendingLocation() {
-		gps.stopUsingGPS();		
+		if(gps != null)
+			gps.stopUsingGPS();		
 	}
 
 	public void onNegativeButtonPress(View v) {
