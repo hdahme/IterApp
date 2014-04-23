@@ -282,6 +282,9 @@ public class MapDemoActivity extends FragmentActivity implements
 		query.whereEqualTo("active", true);
 
         if (this.eventFilters != null) {
+            if (gps != null && gps.canGetLocation()) {
+                this.eventFilters.setCurrentLocation(gps.getLatitude(), gps.getLongitude());
+            }
             this.eventFilters.applyFiltersToEventQuery(query);
         }
 
@@ -332,6 +335,9 @@ public class MapDemoActivity extends FragmentActivity implements
 		map.clear();
 		ParseQuery<LocationUpdate> query = ParseQuery.getQuery(LocationUpdate.class);
         if (this.eventFilters != null) {
+            if (gps != null && gps.canGetLocation()) {
+                this.eventFilters.setCurrentLocation(gps.getLatitude(), gps.getLongitude());
+            }
             this.eventFilters.applyFiltersToLocationUpdateQuery(query);
         }
 		query.orderByDescending("timestamp");
