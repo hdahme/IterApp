@@ -32,6 +32,7 @@
     <string name="logout_label">Logout</string>
     <string name="title_activity_filter">Filters</string>
     <string name="event_type_label">Event Type:</string>
+    <string name="distance_miles_label">Within Miles:</string>
     <string name="save_label">Save</string>
 
     <string name="pref_go">Go!</string>
