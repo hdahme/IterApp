@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.example.mapdemo.models.Event;
 import com.example.mapdemo.models.LocationUpdate;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 
 public class EventFilters implements Serializable {
@@ -15,6 +16,8 @@ public class EventFilters implements Serializable {
     public String text;
     public double maxDistance;
 
+    private transient ParseGeoPoint currentLocation;
+
     public EventFilters() {
         this.reset();
     }
@@ -23,6 +26,15 @@ public class EventFilters implements Serializable {
         this.type = "";
         this.text = "";
         this.maxDistance = 0;
+        this.currentLocation = null;
+    }
+
+    public void setCurrentLocation(ParseGeoPoint geoPoint) {
+        this.currentLocation = geoPoint;
+    }
+
+    public void setCurrentLocation(double latitude, double longitude) {
+        this.currentLocation = new ParseGeoPoint(latitude, longitude);
     }
 
     public void applyFiltersToEventQuery(ParseQuery<Event> query) {
