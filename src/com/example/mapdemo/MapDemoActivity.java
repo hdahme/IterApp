@@ -43,7 +43,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.maps.android.clustering.ClusterManager;
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -332,7 +331,6 @@ public class MapDemoActivity extends FragmentActivity implements
 	}
 	
 	public void fetchEventLocations() {
-		map.clear();
 		ParseQuery<LocationUpdate> query = ParseQuery.getQuery(LocationUpdate.class);
         if (this.eventFilters != null) {
             if (gps != null && gps.canGetLocation()) {
@@ -358,6 +356,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	public void renderEventHistoryAndIcons() {
 		int decayAmount = 0;
 		// Wipe all old icons, polylines, etc
+   		map.clear();
 		for (int i = 0; i < MapDemoActivity.eventLocations.size(); i++) {
 			LocationUpdate l = MapDemoActivity.eventLocations.get(i);
 			LocationUpdate otherL = null;
