@@ -15,6 +15,15 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <!-- For the resting Spinner style -->
+        <item name="android:spinnerItemStyle">
+            @style/spinnerItemStyle
+        </item> 
+
+        <!-- For each individual Spinner list item once clicked on -->
+        <item name="android:spinnerDropDownItemStyle">
+            @style/spinnerDropDownItemStyle
+        </item>
     </style>
     
     <style name="ButtonRed" parent="@android:style/Widget.Button">
@@ -36,6 +45,19 @@
     
     <style name="DetailTextView" parent="@android:style/Widget.TextView">
         <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#074035</item>
+    </style>
+    
+    <style name="spinnerItemStyle">
+        <item name="android:padding">10dp</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#074035</item>
+    </style>
+
+    <style name="spinnerDropDownItemStyle">
+        <item name="android:textSize">20sp</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingTop">5dp</item>
         <item name="android:textColor">#074035</item>
     </style>
 

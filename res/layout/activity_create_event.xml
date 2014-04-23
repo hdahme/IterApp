@@ -8,25 +8,16 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.mapdemo.CreateEventActivity$PlaceholderFragment" >
 
-    <TextView
-        android:id="@+id/tvEventName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/etEventName"
-        android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/etEventName"
-        android:text="@string/create_new_event"/>
-
     <EditText
         android:id="@+id/etEventName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/spSelectEvent"
         android:layout_alignRight="@+id/spSelectEvent"
-        android:layout_below="@+id/tvEventName"
         android:layout_marginTop="27dp"
         android:ems="10"
-        android:hint="@string/event_name_hint" >
+        android:hint="@string/event_name_hint" 
+        style="@style/DetailTextView">
 
         <requestFocus />
     </EditText>
@@ -49,7 +40,8 @@
         android:layout_below="@+id/spSelectEvent"
         android:layout_marginTop="14dp"
         android:ems="10"
-        android:hint="@string/event_description" />
+        android:hint="@string/event_description" 
+        style="@style/DetailTextView"/>
 
     <ImageView
         android:id="@+id/ivStartEvent"

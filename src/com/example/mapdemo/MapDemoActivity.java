@@ -141,18 +141,22 @@ public class MapDemoActivity extends FragmentActivity implements
 		bindViews();
 		
 		currentUser = ParseUser.getCurrentUser();
-		String currentEventIdOnLoad = ParseUser.getCurrentUser().getString("currentEvent"); 
-		ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
-		query.whereEqualTo("objectId", currentEventIdOnLoad);
-		query.findInBackground(new FindCallback<Event>() {
-			public void done(List<Event> events, ParseException e) {
-				try {
-					currentEvent = events.get(0);
-				} catch (Exception ex) {
-					currentEvent = null;
+		try {
+			String currentEventIdOnLoad = currentUser.getString("currentEvent");
+			ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
+			query.whereEqualTo("objectId", currentEventIdOnLoad);
+			query.findInBackground(new FindCallback<Event>() {
+				public void done(List<Event> events, ParseException e) {
+					try {
+						currentEvent = events.get(0);
+					} catch (Exception ex) {
+						currentEvent = null;
+					}
 				}
-			}
-		});
+			});
+		} catch (Exception ex) {
+			currentEvent = null;
+		}
 		
 		if (mapFragment != null) {
 			map = mapFragment.getMap();

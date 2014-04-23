@@ -13,16 +13,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="@string/logged_in_as_label" />
-
-    <TextView
-        android:id="@+id/tvUsername"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/tvLoggedInAs"
-        android:layout_alignBaseline="@+id/tvLoggedInAs"
-        android:layout_marginLeft="10dp"
-        android:text="" />
+        android:text="@string/logged_in_as_label" 
+        style="@style/DetailTextView"/>
 
     <Button
         android:id="@+id/btnLogout"
@@ -31,6 +23,16 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:onClick="onLogout"
-        android:text="@string/logout_label" />
+        android:text="@string/logout_label" 
+        style="@style/ButtonRed" />
+
+    <TextView
+        android:id="@+id/tvUsername"
+        style="@style/DetailTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tvLoggedInAs"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tvLoggedInAs" />
 
 </RelativeLayout>

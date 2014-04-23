@@ -13,7 +13,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignBottom="@+id/spEventType"
-        android:text="@string/event_type_label" />
+        android:text="@string/event_type_label" 
+        style="@style/DetailTextView"/>
 
     <Spinner
         android:id="@+id/spEventType"
@@ -29,7 +30,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignBottom="@+id/spDistance"
-        android:text="@string/distance_miles_label" />
+        android:text="@string/distance_miles_label" 
+        style="@style/DetailTextView"/>
 
     <Spinner
         android:id="@+id/spDistance"
@@ -46,6 +48,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:onClick="onSave"
-        android:text="@string/save_label" />
+        android:text="@string/save_label" 
+        style="@style/ButtonRed"/>
 
 </RelativeLayout>
