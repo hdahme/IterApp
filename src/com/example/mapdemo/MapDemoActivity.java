@@ -446,7 +446,7 @@ public class MapDemoActivity extends FragmentActivity implements
 				decayAmount = 0;
 			// Otherwise draw polylines connecting the previous location updates
 			} else {
-				int c = Color.argb(Math.max(255-(decayAmount*10), 0), 0, 0, 0);				
+				int c = Color.argb(Math.max(255-(decayAmount*10), 0), 251, 232, 121);				
 				Polyline polyline = map.addPolyline(new PolylineOptions()
 				.add(new LatLng(l.getLat(), l.getLng()), 
 				     new LatLng(otherL.getLat(), otherL.getLng()))
