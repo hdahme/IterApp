@@ -172,8 +172,15 @@ public class MapDemoActivity extends FragmentActivity implements
 		fetchEventData();
 		fetchEventHandler = new Handler();
 		sendLocationHandler = new Handler();	
+		
+		// Send GPS location initially
+		sendLocationData();
 		///setUpClusterer();
 	
+	}
+
+	private void sendLocationData() {
+		gps = new GPSTracking(MapDemoActivity.this);	
 	}
 
 	public void bindViews() {
