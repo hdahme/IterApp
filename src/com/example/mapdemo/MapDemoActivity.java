@@ -92,7 +92,7 @@ public class MapDemoActivity extends FragmentActivity implements
 
 	GPSTracking gps;
     // Declare a variable for the cluster manager.
-    private ClusterManager<LocationUpdate> mClusterManager;
+    ///private ClusterManager<Event> mClusterManager;
 	
 	/*
 	 * Define a request code to send to Google Play services This code is
@@ -170,7 +170,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		fetchEventHandler = new Handler();
 		sendLocationHandler = new Handler();
 		
-		setUpClusterer();
+		///setUpClusterer();
 	
 	}
 
@@ -611,21 +611,22 @@ public class MapDemoActivity extends FragmentActivity implements
 		sendLocation();
 	}
 	
+	
+	/*
 	// Set up clustering functionality
 	private void setUpClusterer() {
 
 
 	    // Position the map.
-		mapFragment.getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
+		map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
 
 	    // Initialize the manager with the context and the map.
-	    // (Activity extends context, so we can pass 'this' in the constructor.)
-	    mClusterManager = new ClusterManager<LocationUpdate>(this, mapFragment.getMap());
+	    mClusterManager = new ClusterManager<Event>(this, mapFragment.getMap());
 
 	    // Point the map's listeners at the listeners implemented by the cluster
 	    // manager.
-	    mapFragment.getMap().setOnCameraChangeListener(mClusterManager);
-	    mapFragment.getMap().setOnMarkerClickListener(mClusterManager);
+	    map.setOnCameraChangeListener(mClusterManager);
+	    map.setOnMarkerClickListener(mClusterManager);
 
 	    // Add cluster items (markers) to the cluster manager.
 	    addItems();
@@ -642,10 +643,12 @@ public class MapDemoActivity extends FragmentActivity implements
 	        double offset = i / 60d;
 	        lat = lat + offset;
 	        lng = lng + offset;
-	        LocationUpdate offsetItem = new LocationUpdate();
+	        Event offsetItem = new Event();
 	        offsetItem.setLat(lat);
-	        offsetItem.setLng(lng);
+	        offsetItem.setLong(lng);
+	        offsetItem.setType("hike");
 	        mClusterManager.addItem(offsetItem);
 	    }
 	}
+	*/
 }
