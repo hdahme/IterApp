@@ -55,6 +55,8 @@ public class FilterActivity extends Activity {
         String eventTypeValue = this.eventTypeSpinner.getSelectedItem().toString();
         if (!eventTypeValue.equals("Select Event Type")) {
             this.eventFilters.type = EventType.fromDisplayValue(eventTypeValue).getValue();
+        } else {
+            this.eventFilters.type = null;
         }
 
         Intent data = new Intent();
