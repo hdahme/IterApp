@@ -59,7 +59,7 @@
 
         <activity
             android:name="com.example.mapdemo.CreateEventActivity"
-            android:label="@string/title_activity_create_event" >
+            android:label="@string/create_event_title" >
         </activity>
         <activity
             android:name="com.example.mapdemo.DetailedEventActivity"
@@ -67,7 +67,7 @@
         </activity>
         <activity
             android:name="com.example.mapdemo.SettingsActivity"
-            android:label="@string/title_activity_settings" >
+            android:label="@string/settings_title" >
         </activity>
         <activity
             android:name="com.example.mapdemo.FilterActivity"

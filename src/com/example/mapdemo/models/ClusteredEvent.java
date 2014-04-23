@@ -5,7 +5,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterItem;
 
-public class ClusteredEvent  implements ClusterItem {
+public class ClusteredEvent implements ClusterItem {
 
 	Marker mapItem;
 	LatLng valueLoc;

@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mapdemo.maphelpers.MapBoxTileProvider;
 import com.example.mapdemo.models.ClusteredEvent;
 import com.example.mapdemo.models.Event;
 import com.example.mapdemo.models.LocationUpdate;
@@ -33,6 +34,7 @@ import com.facebook.model.GraphUser;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.internal.in;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -45,6 +47,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.Tile;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.parse.FindCallback;
@@ -89,9 +95,14 @@ public class MapDemoActivity extends FragmentActivity implements
 	public static final int FACEBOOK_LOGIN = 314;
 	public static final String EVENT = "event";
 	public static final String NEW_EVENT = "new event";
+	public static final String ITERAPP_TILE_PROVIDER = "hdahme.i29l01e4";
 
 	public static List<Event> eventList;
 	public static List<LocationUpdate> eventLocations;
+	private ArrayList<Polyline> polylines = new ArrayList<Polyline>();
+	private ArrayList<Marker> markers = new ArrayList<Marker>();
+	private ArrayList<MarkerOptions> markerOptions = new ArrayList<MarkerOptions>();
+	private ArrayList<PolylineOptions> polyLineOptions = new ArrayList<PolylineOptions>();
 
 	GPSTracking gps;
     // Declare a variable for the cluster manager.
@@ -116,6 +127,7 @@ public class MapDemoActivity extends FragmentActivity implements
 				}
 				if (user == null) {
 					Log.d("fbId", "Uh oh. The user cancelled the Facebook login.");
+					Toast.makeText(getBaseContext(), "Please log in with Facebook", Toast.LENGTH_SHORT).show();
 			    } else if (user.isNew()) {
 			    	Log.d("fbId", "User signed up and logged in through Facebook!");
 			    	getFacebookIdInBackground();
@@ -128,7 +140,19 @@ public class MapDemoActivity extends FragmentActivity implements
 
 		bindViews();
 		
-		currentUser = ParseUser.getCurrentUser();	
+		currentUser = ParseUser.getCurrentUser();
+		String currentEventIdOnLoad = ParseUser.getCurrentUser().getString("currentEvent"); 
+		ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
+		query.whereEqualTo("objectId", currentEventIdOnLoad);
+		query.findInBackground(new FindCallback<Event>() {
+			public void done(List<Event> events, ParseException e) {
+				try {
+					currentEvent = events.get(0);
+				} catch (Exception ex) {
+					currentEvent = null;
+				}
+			}
+		});
 		
 		if (mapFragment != null) {
 			map = mapFragment.getMap();
@@ -171,7 +195,14 @@ public class MapDemoActivity extends FragmentActivity implements
 		}
 		fetchEventData();
 		fetchEventHandler = new Handler();
-		sendLocationHandler = new Handler();	
+		sendLocationHandler = new Handler();
+		
+		// Set up custom tile provider
+		TileOverlayOptions opts = new TileOverlayOptions();
+		opts.tileProvider(new MapBoxTileProvider(ITERAPP_TILE_PROVIDER));
+		map.addTileOverlay(opts);
+		// Turn off Google's tiles
+		map.setMapType(GoogleMap.MAP_TYPE_NONE);
 		
 		// Send GPS location initially
 		sendLocationData();
@@ -207,6 +238,8 @@ public class MapDemoActivity extends FragmentActivity implements
 	public void populateSlider() {
 		if (currentEvent == null) {
 			positiveButton.setText(R.string.join);
+		} else if (currentEvent == null && !temporaryEvent.isActive()) {
+			positiveButton.setText(R.string.become_host);
 		} else if (((String)temporaryEvent.getOwner().getObjectId()).equals(currentUser.getObjectId())) {
 			positiveButton.setText(R.string.end_event);
 		} else if (temporaryEvent != null){
@@ -225,12 +258,20 @@ public class MapDemoActivity extends FragmentActivity implements
 	public void onPositiveButtonPress(View v) {
 		String tempEventOwnerId = (String)temporaryEvent.getOwner().getObjectId();
 		if (currentEvent == null) {
+			
+			// So that people have a chance to let an event continue, if the host leaves
+			if (!temporaryEvent.isActive()) {
+				temporaryEvent.setActive(true);
+				temporaryEvent.setOwner(currentUser);
+			}
 			Toast.makeText(getBaseContext(), "Joining event", Toast.LENGTH_SHORT).show();
 			temporaryEvent.setNumberOfParticipants(temporaryEvent.getNumberOfParticipants()+1);
 			temporaryEvent.saveInBackground(new SaveCallback(){
 				public void done(ParseException e) { fetchEventLocations(); }
 			});
 			currentEvent = temporaryEvent;
+			currentUser.put("currentEvent", temporaryEvent.getObjectId());
+			currentUser.saveInBackground();
 			
 		} else if (tempEventOwnerId.equals(currentUser.getObjectId())) {
 			Toast.makeText(getBaseContext(), "Ending event", Toast.LENGTH_SHORT).show();
@@ -240,7 +281,10 @@ public class MapDemoActivity extends FragmentActivity implements
 				public void done(ParseException e) {fetchEventLocations();}
 			});
 			currentEvent = null;
+			ParseUser.getCurrentUser().put("currentEvent", "");
+	        ParseUser.getCurrentUser().saveInBackground();
 			stopSendingLocation();
+			
 		} else if (temporaryEvent != null){
 			Toast.makeText(getBaseContext(), "Leaving event", Toast.LENGTH_SHORT).show();
 			temporaryEvent.setNumberOfParticipants(currentEvent.getNumberOfParticipants()-1);
@@ -248,6 +292,9 @@ public class MapDemoActivity extends FragmentActivity implements
 				public void done(ParseException e) {fetchEventLocations();}
 			});
 			currentEvent = null;
+			ParseUser.getCurrentUser().put("currentEvent", "");
+	        ParseUser.getCurrentUser().saveInBackground();
+	        
 		}
 		
 		if (slidingLayer.isOpened()) {
@@ -368,11 +415,19 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	public void renderEventHistoryAndIcons() {
 		int decayAmount = 0;
-		ArrayList<Marker> markers = new ArrayList<Marker>();
-		ArrayList<MarkerOptions> markerOptions = new ArrayList<MarkerOptions>();
-		ArrayList<PolylineOptions> polyLineOptions = new ArrayList<PolylineOptions>();
-		// Wipe all old icons, polylines, etc
-   		map.clear();
+		
+		// Wipe all old icons, polylines, etc - map.clear removes custom tile overlay
+   		for (Polyline line : polylines){
+   			line.remove();
+   		}
+   		polylines.clear();
+   		for (Marker marker : markers){
+   			marker.remove();
+   		}
+   		markers.clear();
+   		polyLineOptions.clear();
+   		markerOptions.clear();
+		
 		for (int i = 0; i < MapDemoActivity.eventLocations.size(); i++) {
 			LocationUpdate l = MapDemoActivity.eventLocations.get(i);
 			LocationUpdate otherL = null;
@@ -395,6 +450,7 @@ public class MapDemoActivity extends FragmentActivity implements
 				     new LatLng(otherL.getLat(), otherL.getLng()))
 				.width(5)
 				.color(c));
+				polylines.add(polyline);
 				
 				decayAmount++;
 			}
@@ -682,5 +738,4 @@ public class MapDemoActivity extends FragmentActivity implements
 	    }
 	    int j = 0;
 	}
-	
 }
