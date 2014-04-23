@@ -282,7 +282,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		query.whereEqualTo("active", true);
 
 		if (this.eventFilters != null) {
-		    this.eventFilters.applyFiltersToQuery(query);
+		    this.eventFilters.applyFiltersToEventQuery(query);
 		}
 
         query.findInBackground(new FindCallback<Event>() {
@@ -331,6 +331,9 @@ public class MapDemoActivity extends FragmentActivity implements
 	public void fetchEventLocations() {
 		map.clear();
 		ParseQuery<LocationUpdate> query = ParseQuery.getQuery(LocationUpdate.class);
+		if (this.eventFilters != null) {
+            this.eventFilters.applyFiltersToLocationUpdateQuery(query);
+        }
 		query.orderByDescending("timestamp");
 		query.whereGreaterThan("timestamp", System.currentTimeMillis() - amountOfHistoryToPull);
         query.findInBackground(new FindCallback<LocationUpdate>() {

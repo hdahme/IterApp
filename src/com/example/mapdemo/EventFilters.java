@@ -3,6 +3,7 @@ package com.example.mapdemo;
 import java.io.Serializable;
 
 import com.example.mapdemo.models.Event;
+import com.example.mapdemo.models.LocationUpdate;
 import com.parse.ParseQuery;
 
 public class EventFilters implements Serializable {
@@ -24,7 +25,13 @@ public class EventFilters implements Serializable {
         this.maxDistance = 0;
     }
 
-    public void applyFiltersToQuery(ParseQuery<Event> query) {
+    public void applyFiltersToEventQuery(ParseQuery<Event> query) {
+        if (this.type != null && !this.type.isEmpty()) {
+            query.whereEqualTo("type", this.type);
+        }
+    }
+
+    public void applyFiltersToLocationUpdateQuery(ParseQuery<LocationUpdate> query) {
         if (this.type != null && !this.type.isEmpty()) {
             query.whereEqualTo("type", this.type);
         }
