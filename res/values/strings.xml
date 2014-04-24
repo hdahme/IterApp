@@ -40,5 +40,6 @@
     
     <string name="create_event_title">Create Event</string>
     <string name="settings_title">Settings</string>
+    <string name="event_in_progress">Event In Progress</string>
 
 </resources>

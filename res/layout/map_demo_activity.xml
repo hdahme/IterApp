@@ -10,24 +10,35 @@
 	   android:layout_width="match_parent"
 	   android:layout_height="match_parent"/>
 	
+	<TextView
+	    android:id="@+id/tvEventInProgress"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentRight="true"
+	    android:layout_alignParentTop="true" 
+	    style="@style/EventInProgressTextView"/>
+	
 	<com.slidinglayer.SlidingLayer
 	    xmlns:slidingLayer="http://schemas.android.com/apk/res-auto"
 	    android:id="@+id/slidingLayer1"
 	    android:layout_width="@dimen/layer_width"
 	    android:layout_height="match_parent"
+	    android:layout_below="@+id/tvEventInProgress"
+	    slidingLayer:closeOnTapEnabled="true"
+	    slidingLayer:offsetWidth="@dimen/offset_width"
 	    slidingLayer:shadowDrawable="@drawable/sidebar_shadow"
 	    slidingLayer:shadowWidth="@dimen/shadow_width"
-	    slidingLayer:offsetWidth="@dimen/offset_width"
-	    slidingLayer:stickTo="bottom"
-	    slidingLayer:closeOnTapEnabled="true">
+	    slidingLayer:stickTo="bottom" >
 	    
 	    <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#cccccccc">
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:background="#cccccccc" >
 
             <TextView
                 android:id="@+id/tvSlideEventTitle"
+                style="@style/DetailTitleTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
@@ -35,9 +46,7 @@
                 android:layout_alignParentTop="true"
                 android:drawablePadding="15dip"
                 android:fontFamily="sans-serif-medium"
-                android:gravity="center"
-                android:paddingBottom="80dp"
-                style="@style/DetailTitleTextView"/>
+                android:gravity="center"/>
 
             <Button
                 android:id="@+id/btnPositive"
@@ -45,7 +54,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignRight="@+id/textView1"
-                android:layout_marginBottom="53dp"
+                android:layout_marginBottom="10dp"
                 android:onClick="onPositiveButtonPress"
                 android:text="@string/join" />
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
@@ -20,6 +21,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -77,6 +79,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	private TextView slideEventDescription;
 	private TextView slideHost;
 	private TextView slideAttendeeCount;
+	private TextView eventInProgress;
 	
 	// Only makes sense to fetch as often as they're sent
 	private int fetchEventInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES; 
@@ -228,6 +231,8 @@ public class MapDemoActivity extends FragmentActivity implements
 		slideEventDescription = (TextView)findViewById(R.id.tvSlideEventDescription);
 		slideHost = (TextView)findViewById(R.id.tvSlideHost);
 		slideAttendeeCount = (TextView)findViewById(R.id.tvSlideAttendeeCount);
+		eventInProgress = (TextView)findViewById(R.id.tvEventInProgress);
+		eventInProgress.setAlpha(0f);
 		
 		// Draw the sliding panel at the bottom of the map
 		slidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
@@ -240,9 +245,9 @@ public class MapDemoActivity extends FragmentActivity implements
 	}
 	
 	public void populateSlider() {
-		if (currentEvent == null) {
+		if (currentEvent == null && temporaryEvent.isActive()) {
 			positiveButton.setText(R.string.join);
-		} else if (currentEvent == null && !temporaryEvent.isActive()) {
+		} else if (currentEvent == null) {
 			positiveButton.setText(R.string.become_host);
 		} else if (((String)temporaryEvent.getOwner().getObjectId()).equals(currentUser.getObjectId())) {
 			positiveButton.setText(R.string.end_event);
@@ -267,13 +272,16 @@ public class MapDemoActivity extends FragmentActivity implements
 			if (!temporaryEvent.isActive()) {
 				temporaryEvent.setActive(true);
 				temporaryEvent.setOwner(currentUser);
+				Toast.makeText(getBaseContext(), "Becoming Host", Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(getBaseContext(), "Joining event", Toast.LENGTH_SHORT).show();
 			}
-			Toast.makeText(getBaseContext(), "Joining event", Toast.LENGTH_SHORT).show();
 			temporaryEvent.setNumberOfParticipants(temporaryEvent.getNumberOfParticipants()+1);
 			temporaryEvent.saveInBackground(new SaveCallback(){
 				public void done(ParseException e) { fetchEventLocations(); }
 			});
 			currentEvent = temporaryEvent;
+			showEventInPogress();
 			currentUser.put("currentEvent", temporaryEvent.getObjectId());
 			currentUser.saveInBackground();
 			
@@ -285,6 +293,7 @@ public class MapDemoActivity extends FragmentActivity implements
 				public void done(ParseException e) {fetchEventLocations();}
 			});
 			currentEvent = null;
+			hideEventInProgress();
 			ParseUser.getCurrentUser().put("currentEvent", "");
 	        ParseUser.getCurrentUser().saveInBackground();
 			stopSendingLocation();
@@ -296,6 +305,7 @@ public class MapDemoActivity extends FragmentActivity implements
 				public void done(ParseException e) {fetchEventLocations();}
 			});
 			currentEvent = null;
+			hideEventInProgress();
 			ParseUser.getCurrentUser().put("currentEvent", "");
 	        ParseUser.getCurrentUser().saveInBackground();
 	        
@@ -305,6 +315,29 @@ public class MapDemoActivity extends FragmentActivity implements
 			temporaryEvent = null;
 			slidingLayer.closeLayer(true);
         }
+	}
+	
+	private void showEventInPogress() {
+		eventInProgress.setText(R.string.event_in_progress);
+		eventInProgress.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				temporaryEvent = currentEvent;
+				if (!slidingLayer.isOpened()) {
+					populateSlider();
+					slidingLayer.openLayer(true);
+	            }
+			}
+		});
+		ObjectAnimator fadeInAnim = ObjectAnimator.ofFloat(eventInProgress, "alpha", 0f, 1f);
+		fadeInAnim.start();
+	}
+	
+	private void hideEventInProgress() {
+		eventInProgress.setText("");
+		eventInProgress.setOnClickListener(new OnClickListener() {	public void onClick(View v) {}});
+		ObjectAnimator fadeInAnim = ObjectAnimator.ofFloat(eventInProgress, "alpha", 1f, 0f);
+		fadeInAnim.start();
 	}
 	
 	private void stopSendingLocation() {
@@ -446,7 +479,7 @@ public class MapDemoActivity extends FragmentActivity implements
 				decayAmount = 0;
 			// Otherwise draw polylines connecting the previous location updates
 			} else {
-				int c = Color.argb(Math.max(255-(decayAmount*10), 0), 251, 232, 121);				
+				int c = Color.argb(Math.max(255-(decayAmount*5), 0), 187, 59, 51);				
 				Polyline polyline = map.addPolyline(new PolylineOptions()
 				.add(new LatLng(l.getLat(), l.getLng()), 
 				     new LatLng(otherL.getLat(), otherL.getLng()))
@@ -539,6 +572,7 @@ public class MapDemoActivity extends FragmentActivity implements
 					gps = new GPSTracking(MapDemoActivity.this);
 					gps.addGPSUpdateListener(MapDemoActivity.this);
 					fetchEventLocations();
+					showEventInPogress();
 				}
 	        });
 		} else if (resultCode == RESULT_OK && requestCode == MapDemoActivity.FILTERS_REQUEST_CODE) {
