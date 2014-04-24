@@ -308,10 +308,10 @@ public class MapDemoActivity extends FragmentActivity implements
 			temporaryEvent.saveInBackground(new SaveCallback(){
 				public void done(ParseException e) {fetchEventLocations();}
 			});
-			//currentEvent = null;
-			//hideEventInProgress();
-			//stopFetchingAttendanceChanges();
-			//ParseUser.getCurrentUser().put("currentEvent", "");
+			currentEvent = null;
+			hideEventInProgress();
+			stopFetchingAttendanceChanges();
+			ParseUser.getCurrentUser().put("currentEvent", "");
 	        ParseUser.getCurrentUser().saveInBackground();
 			stopSendingLocation();
 			
