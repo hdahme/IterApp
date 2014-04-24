@@ -68,17 +68,26 @@
                 android:layout_alignRight="@+id/btnNegative"
                 android:layout_below="@+id/tvSlideAttendeeCount"
                 android:text="" />
-
+            
             <TextView
-                android:id="@+id/tvSlideHost"
+                android:id="@+id/tvHostedBy"
+                style="@style/DetailTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/tvSlideEventTitle"
-                android:gravity="right"
-                android:text="" 
-                style="@style/DetailTextView"/>
+                android:text="@string/hosted_by" />
+
+            <TextView
+                android:id="@+id/tvSlideHost"
+                style="@style/DetailTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/tvHostedBy"
+                android:text="" />
 
             <Button
                 android:id="@+id/btnNegative"
@@ -99,13 +108,13 @@
 
             <TextView
                 android:id="@+id/tvSlideAttendeeCount"
+                style="@style/DetailTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
+                android:layout_alignLeft="@+id/tvSlideHost"
                 android:layout_alignParentRight="true"
-                android:layout_below="@+id/tvSlideHost"
-                android:gravity="right" 
-                style="@style/DetailTextView"/>
+                android:layout_below="@+id/tvSlideHost"/>
+
 
         </RelativeLayout>
         

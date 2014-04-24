@@ -1,5 +1,8 @@
 package com.example.mapdemo;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +13,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -23,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +61,7 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
+import com.loopj.android.image.SmartImageView;
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -152,6 +159,8 @@ public class MapDemoActivity extends FragmentActivity implements
 				public void done(List<Event> events, ParseException e) {
 					try {
 						currentEvent = events.get(0);
+						temporaryUser = currentUser;
+						showEventInPogress();
 					} catch (Exception ex) {
 						currentEvent = null;
 					}
@@ -259,9 +268,10 @@ public class MapDemoActivity extends FragmentActivity implements
 		
 		negativeButton.setText(R.string.cancel);
 		slideAttendeeCount.setText(temporaryEvent.getNumberOfParticipants() + " Attendees");
-		slideHost.setText(temporaryUser.getString("name"));
+		slideHost.setText(temporaryUser.getString("firstName")+" "+temporaryUser.getString("lastName"));
 		slideEventDescription.setText(temporaryEvent.getDescription());
 		slideEventTitle.setText(temporaryEvent.getTitle());
+		
 	}
 	
 	public void onPositiveButtonPress(View v) {
@@ -727,6 +737,9 @@ public class MapDemoActivity extends FragmentActivity implements
 				if (user != null) {
 			        ParseUser.getCurrentUser().put("fbId", user.getId());
 			        ParseUser.getCurrentUser().put("name", user.getName());
+			        ParseUser.getCurrentUser().put("firstName", user.getFirstName());
+			        ParseUser.getCurrentUser().put("lastName", user.getLastName());
+			        ParseUser.getCurrentUser().put("profilePhoto", "http://graph.facebook.com/"+user.getId()+"/picture?type=small");
 			        ParseUser.getCurrentUser().saveInBackground();
 			        Log.d("fbId", user.getId());
 			      }
