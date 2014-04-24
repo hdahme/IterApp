@@ -472,7 +472,8 @@ public class MapDemoActivity extends FragmentActivity implements
 				notifAttendees = notifAttendees + newParticipants.size() - oldParticipants.size();
 				if (notifAttendees != 0) {
 					notificationArea.setText(String.valueOf(notifAttendees));
-					ObjectAnimator fadeInAnim = ObjectAnimator.ofFloat(notificationArea, "alpha", 0f, 1f);
+					ObjectAnimator fadeInAnim = ObjectAnimator.ofFloat(notificationArea, "alpha", 
+							notificationArea.getAlpha(), 1f);
 					fadeInAnim.start();
 				}
 				
