@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -90,10 +92,10 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	// Only makes sense to fetch as often as they're sent
 	private int fetchEventInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES; 
-	private int sendLocationInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES;
-	private int amountOfHistoryToPull = 1000 * 60 * 60 * 24; // 1 day, should be = sendLocationInterval
+	private int amountOfHistoryToPull = 1000 * 60 * 60 * 24; // 1 day, should be = fetchEventInterval
+	private int attendanceChangeInterval = 5000;
 	private Handler fetchEventHandler;
-	private Handler sendLocationHandler;
+	private Handler attenendanceChangeHandler;
 	private Event currentEvent;
 	private Event temporaryEvent;
 	private ParseUser temporaryUser;
@@ -211,7 +213,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		}
 		fetchEventData();
 		fetchEventHandler = new Handler();
-		sendLocationHandler = new Handler();
+		attenendanceChangeHandler = new Handler();
 		
 		// Set up custom tile provider
 		TileOverlayOptions opts = new TileOverlayOptions();
@@ -282,6 +284,7 @@ public class MapDemoActivity extends FragmentActivity implements
 			if (!temporaryEvent.isActive()) {
 				temporaryEvent.setActive(true);
 				temporaryEvent.setOwner(currentUser);
+				startFetchingAttendanceChanges();
 				Toast.makeText(getBaseContext(), "Becoming Host", Toast.LENGTH_SHORT).show();
 			} else {
 				Toast.makeText(getBaseContext(), "Joining event", Toast.LENGTH_SHORT).show();
@@ -304,6 +307,7 @@ public class MapDemoActivity extends FragmentActivity implements
 			});
 			currentEvent = null;
 			hideEventInProgress();
+			stopFetchingAttendanceChanges();
 			ParseUser.getCurrentUser().put("currentEvent", "");
 	        ParseUser.getCurrentUser().saveInBackground();
 			stopSendingLocation();
@@ -376,14 +380,27 @@ public class MapDemoActivity extends FragmentActivity implements
 		}
 	};
 	
-	
 	private void startFetchingEventLocations() {
 		fetchEventLocations.run();
 	}
 	
-	
 	private void stopFetchingEventLocations() {		
 		fetchEventHandler.removeCallbacks(fetchEventLocations);
+	}
+	
+	Runnable fetchAttendanceChange = new Runnable() {
+		public void run() {
+			fetchAttendanceChange();
+			attenendanceChangeHandler.postDelayed(fetchAttendanceChange, attendanceChangeInterval);
+		}
+	};
+	
+	private void startFetchingAttendanceChanges() {
+		fetchAttendanceChange.run();
+	}
+	
+	private void stopFetchingAttendanceChanges() {		
+		attenendanceChangeHandler.removeCallbacks(fetchAttendanceChange);
 	}
 	
 	public void fetchEventData() {
@@ -411,7 +428,45 @@ public class MapDemoActivity extends FragmentActivity implements
             }
         });
 	}
-		
+	
+	// Refresh the current event, looking for attendance changes. 
+	public void fetchAttendanceChange() {
+		final ArrayList<String> oldParticipants = currentEvent.getParticipants();
+		ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
+		query.whereEqualTo("objectId", currentEvent.getObjectId());
+		query.findInBackground(new FindCallback<Event>() {
+			public void done(List<Event> events, ParseException e) {
+				currentEvent = events.get(0);
+				
+				// No changes
+				ArrayList<String> newParticipants = currentEvent.getParticipants();
+				if (oldParticipants.equals(newParticipants)) {
+					return;
+				}
+				
+				// oldParticipants is now everyone who has left between updates, 
+				// newParticipants is now everyone who has joined between updates
+				ArrayList<String> oP = new ArrayList<String>(oldParticipants); 
+				oldParticipants.removeAll(newParticipants);
+				newParticipants.removeAll(oP);
+				
+				// Notify the host/current user
+				Vibrator v = (Vibrator) getBaseContext().getSystemService(getBaseContext().VIBRATOR_SERVICE);
+				v.vibrate(500);
+				Log.d("fbId", "Leaving members");
+				Log.d("fbId", oldParticipants.toString());
+				Log.d("fbId", "Joining members");
+				Log.d("fbId", newParticipants.toString());
+				
+				// Refresh the sliding panel, if it's open
+				if (slidingLayer.isOpened()) {
+					temporaryEvent = currentEvent;
+					temporaryUser = currentUser;
+					populateSlider();
+		        }
+			}
+		});
+	}
 	
 	public void sendLocation() {
 
@@ -590,6 +645,7 @@ public class MapDemoActivity extends FragmentActivity implements
 					gps.addGPSUpdateListener(MapDemoActivity.this);
 					fetchEventLocations();
 					showEventInPogress();
+					startFetchingAttendanceChanges();
 				}
 	        });
 		} else if (resultCode == RESULT_OK && requestCode == MapDemoActivity.FILTERS_REQUEST_CODE) {
