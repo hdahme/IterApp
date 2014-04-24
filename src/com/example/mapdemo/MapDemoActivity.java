@@ -286,7 +286,7 @@ public class MapDemoActivity extends FragmentActivity implements
 			} else {
 				Toast.makeText(getBaseContext(), "Joining event", Toast.LENGTH_SHORT).show();
 			}
-			temporaryEvent.setNumberOfParticipants(temporaryEvent.getNumberOfParticipants()+1);
+			temporaryEvent.addParticipant(currentUser);
 			temporaryEvent.saveInBackground(new SaveCallback(){
 				public void done(ParseException e) { fetchEventLocations(); }
 			});
@@ -298,7 +298,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		} else if (tempEventOwnerId.equals(currentUser.getObjectId())) {
 			Toast.makeText(getBaseContext(), "Ending event", Toast.LENGTH_SHORT).show();
 			temporaryEvent.setActive(false);
-			temporaryEvent.setNumberOfParticipants(currentEvent.getNumberOfParticipants()-1);
+			temporaryEvent.removeParticipant(currentUser);
 			temporaryEvent.saveInBackground(new SaveCallback(){
 				public void done(ParseException e) {fetchEventLocations();}
 			});
@@ -310,7 +310,7 @@ public class MapDemoActivity extends FragmentActivity implements
 			
 		} else if (temporaryEvent != null){
 			Toast.makeText(getBaseContext(), "Leaving event", Toast.LENGTH_SHORT).show();
-			temporaryEvent.setNumberOfParticipants(currentEvent.getNumberOfParticipants()-1);
+			temporaryEvent.removeParticipant(currentUser);
 			temporaryEvent.saveInBackground(new SaveCallback(){
 				public void done(ParseException e) {fetchEventLocations();}
 			});
@@ -333,10 +333,17 @@ public class MapDemoActivity extends FragmentActivity implements
 			@Override
 			public void onClick(View v) {
 				temporaryEvent = currentEvent;
-				if (!slidingLayer.isOpened()) {
-					populateSlider();
-					slidingLayer.openLayer(true);
-	            }
+				ParseQuery<ParseUser> query = ParseUser.getQuery();
+				query.whereEqualTo("objectId", temporaryEvent.getOwner().getObjectId());
+		        query.findInBackground(new FindCallback<ParseUser>() {
+					public void done(List<ParseUser> hosts, ParseException e) {
+						temporaryUser = hosts.get(0);
+						if (!slidingLayer.isOpened()) {
+							populateSlider();
+							slidingLayer.openLayer(true);
+			            }
+					};
+		        });
 			}
 		});
 		ObjectAnimator fadeInAnim = ObjectAnimator.ofFloat(eventInProgress, "alpha", 0f, 1f);

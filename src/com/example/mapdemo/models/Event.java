@@ -1,8 +1,14 @@
 package com.example.mapdemo.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import android.util.Log;
 
 import com.parse.ParseClassName;
+import com.parse.ParseFacebookUtils.Permissions.User;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -67,10 +73,33 @@ public class Event extends ParseObject implements Serializable{
     }
     
     public int getNumberOfParticipants() {
-    	return getInt("numberOfParticipants");
+    	return getParticipants().size();
     }
     
-    public void setNumberOfParticipants(int n) {
-    	put("numberOfParticipants", n);
+    public ArrayList<String> getParticipants() {
+    	List<Object> objs = getList("participants");
+    	ArrayList<String> a = new ArrayList<String>();
+    	for (Object o : objs){
+    		a.add((String) o);
+    	}
+    	return a;
+    }
+    
+    public void setParticipants(List<ParseUser> p) {
+    	ArrayList<String> a = new ArrayList<String>();
+    	for (ParseUser u : p) {
+    		a.add(u.getObjectId());
+    	}
+    	put("participants", a);
+    }
+    
+    public List<String> addParticipant(ParseUser u) {
+    	addUnique("participants", u.getObjectId());
+    	return getParticipants();
+    }
+    
+    public List<String> removeParticipant(ParseUser u){
+    	removeAll("participants", Arrays.asList(u.getObjectId()));
+    	return getParticipants();
     }
 }

@@ -1,5 +1,7 @@
 package com.example.mapdemo;
 
+import java.util.Arrays;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -95,7 +97,8 @@ public class CreateEventActivity extends Activity {
 		EventType eventType = EventType.fromDisplayValue(spinner.getSelectedItem().toString());
 		newEvent.setType(eventType);
 		newEvent.setActive(true);
-		newEvent.setNumberOfParticipants(1);
+		//newEvent.setParticipants(Arrays.asList(currentUser));
+		newEvent.addParticipant(currentUser);
 		newEvent.setOwner(currentUser);		
 
 		newEvent.saveInBackground(new SaveCallback(){
