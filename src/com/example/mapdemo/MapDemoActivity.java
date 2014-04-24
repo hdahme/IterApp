@@ -89,6 +89,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	private TextView slideHost;
 	private TextView slideAttendeeCount;
 	private TextView eventInProgress;
+	private TextView notificationArea;
 	
 	// Only makes sense to fetch as often as they're sent
 	private int fetchEventInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES; 
@@ -244,6 +245,8 @@ public class MapDemoActivity extends FragmentActivity implements
 		slideAttendeeCount = (TextView)findViewById(R.id.tvSlideAttendeeCount);
 		eventInProgress = (TextView)findViewById(R.id.tvEventInProgress);
 		eventInProgress.setAlpha(0f);
+		notificationArea = (TextView)findViewById(R.id.tvNotif);
+		notificationArea.setAlpha(0f);
 		
 		// Draw the sliding panel at the bottom of the map
 		slidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
@@ -305,10 +308,10 @@ public class MapDemoActivity extends FragmentActivity implements
 			temporaryEvent.saveInBackground(new SaveCallback(){
 				public void done(ParseException e) {fetchEventLocations();}
 			});
-			currentEvent = null;
-			hideEventInProgress();
-			stopFetchingAttendanceChanges();
-			ParseUser.getCurrentUser().put("currentEvent", "");
+			//currentEvent = null;
+			//hideEventInProgress();
+			//stopFetchingAttendanceChanges();
+			//ParseUser.getCurrentUser().put("currentEvent", "");
 	        ParseUser.getCurrentUser().saveInBackground();
 			stopSendingLocation();
 			
@@ -344,6 +347,10 @@ public class MapDemoActivity extends FragmentActivity implements
 						temporaryUser = hosts.get(0);
 						if (!slidingLayer.isOpened()) {
 							populateSlider();
+							ObjectAnimator fadeInAnim = ObjectAnimator.ofFloat(notificationArea, "alpha", 
+									notificationArea.getAlpha(), 0f);
+							notificationArea.setText("0");
+							fadeInAnim.start();
 							slidingLayer.openLayer(true);
 			            }
 					};
@@ -457,6 +464,17 @@ public class MapDemoActivity extends FragmentActivity implements
 				Log.d("fbId", oldParticipants.toString());
 				Log.d("fbId", "Joining members");
 				Log.d("fbId", newParticipants.toString());
+				
+				int notifAttendees = 0;
+				if(!notificationArea.getText().toString().equals("")) {
+					notifAttendees = Integer.parseInt(notificationArea.getText().toString());
+				}
+				notifAttendees = notifAttendees + newParticipants.size() - oldParticipants.size();
+				if (notifAttendees != 0) {
+					notificationArea.setText(String.valueOf(notifAttendees));
+					ObjectAnimator fadeInAnim = ObjectAnimator.ofFloat(notificationArea, "alpha", 0f, 1f);
+					fadeInAnim.start();
+				}
 				
 				// Refresh the sliding panel, if it's open
 				if (slidingLayer.isOpened()) {
