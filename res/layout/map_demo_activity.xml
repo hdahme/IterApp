@@ -18,16 +18,15 @@
 	    android:layout_alignParentRight="true"
 	    android:layout_alignParentTop="true" 
 	    style="@style/EventInProgressTextView"/>
-	
-	<TextView
-	    android:id="@+id/tvNotif"
-	    style="@style/NotificationTextView"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_alignBottom="@+id/tvEventInProgress"
+	<!-- 
+	<ImageView
+	    android:id="@+id/imageView1"
+	    android:layout_width="50dp"
+	    android:layout_height="50dp"
 	    android:layout_alignParentRight="true"
 	    android:layout_alignParentTop="true"
-	    android:text="0" />
+	    android:src="@drawable/notification_bubble" />
+	     -->
 	
 	<com.slidinglayer.SlidingLayer
 	    xmlns:slidingLayer="http://schemas.android.com/apk/res-auto"
@@ -129,5 +128,15 @@
         </RelativeLayout>
         
 	</com.slidinglayer.SlidingLayer>
+
+	<TextView
+	    android:id="@+id/tvNotif"
+	    style="@style/NotificationTextView"
+	    android:layout_width="50dp"
+	    android:layout_height="50dp"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentTop="true"
+	    android:background="@drawable/notification_bubble"
+	    android:text="0" />
     
 </RelativeLayout>

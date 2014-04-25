@@ -56,7 +56,6 @@
     </style>
     
     <style name="NotificationTextView" parent="@style/DetailTitleTextView">
-        <item name="android:background">#BB3B33</item>
         <item name="android:gravity">center</item>
         <item name="android:minWidth">30dp</item>
         <item name="android:textColor">#ffffff</item>
