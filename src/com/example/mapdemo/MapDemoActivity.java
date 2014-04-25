@@ -490,7 +490,7 @@ public class MapDemoActivity extends FragmentActivity implements
 					fadeInAnim.start();
 				}
 				ParseQuery<ParseUser> query = ParseUser.getQuery();
-				query.whereContainedIn("objectId", oldParticipants);
+				query.whereContainedIn("objectId", newParticipants);
 		        query.findInBackground(new FindCallback<ParseUser>() {
 					public void done(List<ParseUser> newParticipants, ParseException e) {
 						ArrayList<String> newAttendeeNames = new ArrayList<String>();
