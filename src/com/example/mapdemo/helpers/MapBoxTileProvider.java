@@ -1,4 +1,4 @@
-package com.example.mapdemo.maphelpers;
+package com.example.mapdemo.helpers;
 
 import java.net.MalformedURLException;
 import java.net.URL;

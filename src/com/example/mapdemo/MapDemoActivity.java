@@ -12,6 +12,9 @@ import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
@@ -23,6 +26,8 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -34,7 +39,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mapdemo.maphelpers.MapBoxTileProvider;
+import com.example.mapdemo.helpers.MapBoxTileProvider;
 import com.example.mapdemo.models.ClusteredEvent;
 import com.example.mapdemo.models.Event;
 import com.example.mapdemo.models.LocationUpdate;
@@ -50,6 +55,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -106,6 +112,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	public static final int NEW_EVENT_CODE = 100;
 	public static final int FACEBOOK_LOGIN = 314;
+	public static final int NOTIFICATION_ID = 1;
 	public static final String EVENT = "event";
 	public static final String NEW_EVENT = "new event";
 	public static final String ITERAPP_TILE_PROVIDER = "hdahme.i29l01e4";
@@ -152,9 +159,11 @@ public class MapDemoActivity extends FragmentActivity implements
 		});
 
 		bindViews();
+		Log.d("fbId", "launched from notif");
 		
 		currentUser = ParseUser.getCurrentUser();
 		try {
+			Log.d("fbId", currentUser.getObjectId());
 			String currentEventIdOnLoad = currentUser.getString("currentEvent");
 			ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
 			query.whereEqualTo("objectId", currentEventIdOnLoad);
@@ -162,6 +171,7 @@ public class MapDemoActivity extends FragmentActivity implements
 				public void done(List<Event> events, ParseException e) {
 					try {
 						currentEvent = events.get(0);
+						Log.d("fbId", currentEvent.getObjectId());
 						temporaryUser = currentUser;
 						showEventInPogress();
 					} catch (Exception ex) {
@@ -397,7 +407,7 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	Runnable fetchAttendanceChange = new Runnable() {
 		public void run() {
-			fetchAttendanceChange();
+			fetchAttendanceChanges();
 			attenendanceChangeHandler.postDelayed(fetchAttendanceChange, attendanceChangeInterval);
 		}
 	};
@@ -437,7 +447,8 @@ public class MapDemoActivity extends FragmentActivity implements
 	}
 	
 	// Refresh the current event, looking for attendance changes. 
-	public void fetchAttendanceChange() {
+	public void fetchAttendanceChanges() {
+		Log.d("fbId", "fetching attendees");
 		final ArrayList<String> oldParticipants = currentEvent.getParticipants();
 		ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
 		query.whereEqualTo("objectId", currentEvent.getObjectId());
@@ -469,6 +480,8 @@ public class MapDemoActivity extends FragmentActivity implements
 				if(!notificationArea.getText().toString().equals("")) {
 					notifAttendees = Integer.parseInt(notificationArea.getText().toString());
 				}
+				
+				// In app notifications
 				notifAttendees = notifAttendees + newParticipants.size() - oldParticipants.size();
 				if (notifAttendees != 0) {
 					notificationArea.setText(String.valueOf(notifAttendees));
@@ -476,6 +489,45 @@ public class MapDemoActivity extends FragmentActivity implements
 							notificationArea.getAlpha(), 1f);
 					fadeInAnim.start();
 				}
+				ParseQuery<ParseUser> query = ParseUser.getQuery();
+				query.whereContainedIn("objectId", oldParticipants);
+		        query.findInBackground(new FindCallback<ParseUser>() {
+					public void done(List<ParseUser> newParticipants, ParseException e) {
+						ArrayList<String> newAttendeeNames = new ArrayList<String>();
+						for (ParseUser u : newParticipants){
+							newAttendeeNames.add(u.getString("name"));
+						}
+						
+						String contentTitle = newParticipants.size() > 1 ? "Attendees!" : "Attendee!";
+						String contentBody = newAttendeeNames.get(0);
+						if (newParticipants.size() > 1) {
+							contentBody += " and " + String.valueOf(newParticipants.size() - 1) + " other";
+							contentBody = newParticipants.size() > 2 ? contentBody+"s" : contentBody;
+						}
+						contentBody += " joined your event!";
+						
+						// Task bar notification
+						NotificationCompat.Builder mBuilder =
+						        new NotificationCompat.Builder(getBaseContext())
+						        .setSmallIcon(R.drawable.ic_launcher)
+						        .setContentTitle(newParticipants.size() + " New Event " + contentTitle)
+						        .setContentText(contentBody)
+						        .setAutoCancel(true);
+						Intent notifIntent = new Intent(getBaseContext(), MapDemoActivity.class);
+						TaskStackBuilder stackBuilder = TaskStackBuilder.create(getBaseContext());
+						stackBuilder.addParentStack(MapDemoActivity.class);
+						stackBuilder.addNextIntent(notifIntent);
+						PendingIntent resultPendingIntent =
+						        stackBuilder.getPendingIntent(
+						            0,
+						            PendingIntent.FLAG_UPDATE_CURRENT
+						        );
+						mBuilder.setContentIntent(resultPendingIntent);
+						NotificationManager mNotificationManager =
+						    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+						mNotificationManager.notify(MapDemoActivity.NOTIFICATION_ID, mBuilder.build());
+					};
+		        });
 				
 				// Refresh the sliding panel, if it's open
 				if (slidingLayer.isOpened()) {

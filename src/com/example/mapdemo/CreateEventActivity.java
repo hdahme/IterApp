@@ -97,13 +97,14 @@ public class CreateEventActivity extends Activity {
 		EventType eventType = EventType.fromDisplayValue(spinner.getSelectedItem().toString());
 		newEvent.setType(eventType);
 		newEvent.setActive(true);
-		//newEvent.setParticipants(Arrays.asList(currentUser));
 		newEvent.addParticipant(currentUser);
 		newEvent.setOwner(currentUser);		
 
 		newEvent.saveInBackground(new SaveCallback(){
 			@Override
 			public void done(ParseException e) {
+				ParseUser.getCurrentUser().put("currentEvent", newEvent.getObjectId());
+				ParseUser.getCurrentUser().saveInBackground();
 				Intent data = new Intent();		
 				data.putExtra(MapDemoActivity.NEW_EVENT, newEvent.getObjectId());
 				setResult(RESULT_OK, data);
