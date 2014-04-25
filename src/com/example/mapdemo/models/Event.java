@@ -79,6 +79,10 @@ public class Event extends ParseObject implements Serializable{
     public ArrayList<String> getParticipants() {
     	List<Object> objs = getList("participants");
     	ArrayList<String> a = new ArrayList<String>();
+    	
+    	if(objs == null || objs.size() == 0)
+    		return a;
+    
     	for (Object o : objs){
     		a.add((String) o);
     	}
