@@ -27,16 +27,16 @@
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tvHobbies"
+        android:id="@+id/tvUserLink"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/ivFacebookUser"
-        android:layout_alignLeft="@+id/tvTitle"
+        android:layout_alignLeft="@+id/tvUserName"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/tvTitle"
         android:gravity="bottom"
         android:lines="1"
-        android:text="User&apos;s hobbies"
+        android:text="User&apos;s Facebook Page"
         android:textSize="10sp" />
 
 </RelativeLayout>

@@ -257,7 +257,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		slidingLayer.setStickTo(SlidingLayer.STICK_TO_BOTTOM);
 		slidingLayer.setCloseOnTapEnabled(false);
 		
-        ArrayList<FacebookUser> arrayFB = new ArrayList<FacebookUser>();
+        ArrayList<GraphUser> arrayFB = new ArrayList<GraphUser>();
         facebookUserAdapter = new FacebookUsersAdapter(this, arrayFB);
         lvFacebookList.setAdapter(facebookUserAdapter);
 
