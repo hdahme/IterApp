@@ -1,7 +1,6 @@
 package com.example.mapdemo;
 
 import android.app.Application;
-import android.util.Log;
 
 import com.example.mapdemo.models.Event;
 import com.example.mapdemo.models.LocationUpdate;

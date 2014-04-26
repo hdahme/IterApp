@@ -1,7 +1,6 @@
 package com.example.mapdemo;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 
 import com.example.mapdemo.models.ClusteredEvent;
 import com.google.android.gms.maps.GoogleMap;

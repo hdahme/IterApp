@@ -1,10 +1,6 @@
 package com.example.mapdemo;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,8 +13,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -35,7 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,13 +43,11 @@ import com.facebook.model.GraphUser;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.internal.in;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -63,13 +55,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.Tile;
-import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.maps.model.TileProvider;
-import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
-import com.loopj.android.image.SmartImageView;
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -93,9 +80,11 @@ public class MapDemoActivity extends FragmentActivity implements
 	private TextView slideEventTitle;
 	private TextView slideEventDescription;
 	private TextView slideHost;
+	private ListView lvFacebookList;
 	private TextView slideAttendeeCount;
 	private TextView eventInProgress;
 	private TextView notificationArea;
+	private FacebookUsersAdapter facebookUserAdapter;
 	
 	// Only makes sense to fetch as often as they're sent
 	private int fetchEventInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES; 
@@ -250,6 +239,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		positiveButton = (Button)findViewById(R.id.btnPositive);
 		negativeButton = (Button)findViewById(R.id.btnNegative);
 		slideEventTitle = (TextView)findViewById(R.id.tvSlideEventTitle);
+		lvFacebookList = (ListView)findViewById(R.id.lvFacebookList);
 		slideEventDescription = (TextView)findViewById(R.id.tvSlideEventDescription);
 		slideHost = (TextView)findViewById(R.id.tvSlideHost);
 		slideAttendeeCount = (TextView)findViewById(R.id.tvSlideAttendeeCount);
@@ -266,6 +256,11 @@ public class MapDemoActivity extends FragmentActivity implements
 		slidingLayer.setShadowDrawable(R.drawable.sidebar_shadow);
 		slidingLayer.setStickTo(SlidingLayer.STICK_TO_BOTTOM);
 		slidingLayer.setCloseOnTapEnabled(false);
+		
+        ArrayList<FacebookUser> arrayFB = new ArrayList<FacebookUser>();
+        facebookUserAdapter = new FacebookUsersAdapter(this, arrayFB);
+        lvFacebookList.setAdapter(facebookUserAdapter);
+
 	}
 	
 	public void populateSlider() {

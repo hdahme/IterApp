@@ -1,7 +1,5 @@
 package com.example.mapdemo;
 
-import java.util.Arrays;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

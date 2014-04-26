@@ -72,7 +72,6 @@
                 style="@style/DetailTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/btnPositive"
                 android:layout_alignParentLeft="true"
                 android:layout_alignRight="@+id/btnNegative"
                 android:layout_below="@+id/tvSlideAttendeeCount"
@@ -124,6 +123,15 @@
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/tvSlideHost"/>
 
+            <ListView
+                android:id="@+id/lvFacebookList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/btnPositive"
+                android:layout_below="@+id/tvSlideEventDescription"
+                android:layout_centerHorizontal="true" >
+
+            </ListView>
 
         </RelativeLayout>
         
