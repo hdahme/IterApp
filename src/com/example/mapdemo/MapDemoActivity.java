@@ -38,7 +38,10 @@ import com.example.mapdemo.models.ClusteredEvent;
 import com.example.mapdemo.models.Event;
 import com.example.mapdemo.models.LocationUpdate;
 import com.facebook.Request;
+import com.facebook.RequestBatch;
 import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.model.GraphObject;
 import com.facebook.model.GraphUser;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -257,7 +260,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		slidingLayer.setStickTo(SlidingLayer.STICK_TO_BOTTOM);
 		slidingLayer.setCloseOnTapEnabled(false);
 		
-        ArrayList<GraphUser> arrayFB = new ArrayList<GraphUser>();
+        ArrayList<GraphObject> arrayFB = new ArrayList<GraphObject>();
         facebookUserAdapter = new FacebookUsersAdapter(this, arrayFB);
         lvFacebookList.setAdapter(facebookUserAdapter);
 
@@ -282,8 +285,35 @@ public class MapDemoActivity extends FragmentActivity implements
 		slideEventDescription.setText(temporaryEvent.getDescription());
 		slideEventTitle.setText(temporaryEvent.getTitle());
 		
+		PopulateFBUserListView();
+		
 	}
 	
+	private void PopulateFBUserListView() {
+		doBatchFacebookRequest();
+		
+	}
+	
+	
+	private void doBatchFacebookRequest() {
+
+	    String[] requestIds = {"5", "4", "706975076"};
+
+	    RequestBatch requestBatch = new RequestBatch();
+	    for (final String requestId : requestIds) {
+	        requestBatch.add(new Request(Session.getActiveSession(), 
+	                requestId, null, null, new Request.Callback() {
+	            public void onCompleted(Response response) {
+	                GraphObject graphObject = response.getGraphObject();               
+	                if (graphObject != null) {
+	                	facebookUserAdapter.add(graphObject);
+	                }	   
+	            }
+	        }));
+	    }
+	    requestBatch.executeAsync();
+	}
+
 	public void onPositiveButtonPress(View v) {
 		String tempEventOwnerId = (String)temporaryEvent.getOwner().getObjectId();
 		if (currentEvent == null) {

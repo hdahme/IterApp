@@ -11,7 +11,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:adjustViewBounds="true"
-        android:maxHeight="93dp"
+        android:maxHeight="50dp"
         android:scaleType="fitXY"
         android:src="@drawable/ic_user" />
 
