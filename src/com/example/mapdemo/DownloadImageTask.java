@@ -27,7 +27,7 @@ class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
 		URL obj = null;
 		try {
-			obj = new URL(urldisplay + "?type=large" );
+			obj = new URL(urldisplay + "?type=normal" );
 		} catch (MalformedURLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

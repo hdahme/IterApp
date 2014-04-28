@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.facebook.model.GraphObject;
-import com.squareup.picasso.Picasso;
 
 public class FacebookUsersAdapter extends ArrayAdapter<GraphObject> {
     public FacebookUsersAdapter(Context context, ArrayList<GraphObject> aMovies) {
@@ -34,9 +33,11 @@ public class FacebookUsersAdapter extends ArrayAdapter<GraphObject> {
         String facebookName = (String)user.getProperty("name");
         tvUserName.setText(facebookName);
       
+        /*
         TextView tvUserLink = (TextView) convertView.findViewById(R.id.tvUserLink);
         String facebookLink = (String)user.getProperty("link");
         tvUserLink.setText(facebookLink);
+        */
         
         ImageView ivUserImage = (ImageView) convertView.findViewById(R.id.ivFacebookUser);
         String imageURL = "http://graph.facebook.com/"+(String)user.getProperty("id")+"/picture";
