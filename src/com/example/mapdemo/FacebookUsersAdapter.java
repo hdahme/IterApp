@@ -40,8 +40,12 @@ public class FacebookUsersAdapter extends ArrayAdapter<GraphObject> {
         
         ImageView ivUserImage = (ImageView) convertView.findViewById(R.id.ivFacebookUser);
         String imageURL = "http://graph.facebook.com/"+(String)user.getProperty("id")+"/picture";
-        Picasso.with(getContext()).load(imageURL).into(ivUserImage);
+        //Picasso.with(getContext()).load(imageURL).into(ivUserImage);
         // Return the completed view to render on screen
+        
+        new DownloadImageTask(ivUserImage)
+        .execute(imageURL);
+        
         return convertView;
     }
     
