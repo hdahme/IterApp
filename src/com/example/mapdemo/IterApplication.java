@@ -8,6 +8,7 @@ import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
+import com.parse.PushService;
 
 public class IterApplication extends Application {
     private static final String APPLICATION_ID = "3BFzwUwXukcS8oIiNwiUwCyHtxVkaxQoXFrjZl9m";
@@ -22,6 +23,7 @@ public class IterApplication extends Application {
 		ParseObject.registerSubclass(LocationUpdate.class);
 		Parse.initialize(this, IterApplication.APPLICATION_ID, IterApplication.CLIENT_KEY);
 		ParseFacebookUtils.initialize(FACEBOOK_APP_ID);
+		PushService.setDefaultPushCallback(this, MapDemoActivity.class);
 
 		ParseACL defaultACL = new ParseACL();
 		defaultACL.setPublicReadAccess(true);
