@@ -288,7 +288,12 @@ public class MapDemoActivity extends FragmentActivity implements
 		}
 		
 		negativeButton.setText(R.string.cancel);
-		slideAttendeeCount.setText(temporaryEvent.getNumberOfParticipants() + " Attendees");
+		int numParticipants = temporaryEvent.getNumberOfParticipants();
+		if (numParticipants == 1) {
+		    slideAttendeeCount.setText(numParticipants + " Attendee");
+		} else {
+		    slideAttendeeCount.setText(numParticipants + " Attendees");
+		}
 		slideHost.setText(temporaryUser.getString("firstName")+" "+temporaryUser.getString("lastName"));
 		slideEventDescription.setText(temporaryEvent.getDescription());
 		slideEventTitle.setText(temporaryEvent.getTitle());
