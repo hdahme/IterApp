@@ -64,6 +64,7 @@ import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseInstallation;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -136,17 +137,24 @@ public class MapDemoActivity extends FragmentActivity implements
 			public void done(ParseUser user, ParseException err) {
 				if (err != null) {
 					Log.d("fbId", err.getMessage());
+					return;
 				}
 				if (user == null) {
 					Log.d("fbId", "Uh oh. The user cancelled the Facebook login.");
 					Toast.makeText(getBaseContext(), "Please log in with Facebook", Toast.LENGTH_SHORT).show();
-			    } else if (user.isNew()) {
+					return;
+			    }
+				if (user.isNew()) {
 			    	Log.d("fbId", "User signed up and logged in through Facebook!");
-			    	getFacebookIdInBackground();
 			    } else {
 			    	Log.d("fbId", "User logged in through Facebook!");
-			    	getFacebookIdInBackground();
 			    }
+				getFacebookIdInBackground();
+
+				// Associate the device with a user
+				ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+				installation.put("user", ParseUser.getCurrentUser());
+				installation.saveInBackground();
 			}
 		});
 
