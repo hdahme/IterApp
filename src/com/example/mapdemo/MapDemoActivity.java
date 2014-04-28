@@ -1,6 +1,7 @@
 package com.example.mapdemo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -311,9 +312,17 @@ public class MapDemoActivity extends FragmentActivity implements
 	private void doBatchFacebookRequest() {
 
 	    String[] requestIds = {"5", "4", "706975076", "505680177"};
-
-	    //ArrayList<String> participants = currentEvent.getFacebookParticipants();	    
-	    //requestIds = (String[]) participants.toArray();
+	    ArrayList<String> testArray = new ArrayList<String>(Arrays.asList(requestIds));
+	    
+	    ArrayList<String> participants = null;
+	    if(temporaryEvent!=null){
+	    	participants = temporaryEvent.getFacebookParticipants();
+	    	participants.addAll(testArray);
+	    }
+	    
+	    requestIds = participants.toArray(new String[participants.size()]);
+	    
+	    
     	facebookUserAdapter.clear();
 	    RequestBatch requestBatch = new RequestBatch();
 	    for (final String requestId : requestIds) {

@@ -5,10 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import android.util.Log;
-
 import com.parse.ParseClassName;
-import com.parse.ParseFacebookUtils.Permissions.User;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -89,21 +86,41 @@ public class Event extends ParseObject implements Serializable{
     	return a;
     }
     
-    public void setParticipants(List<ParseUser> p) {
+    
+    public ArrayList<String> getFacebookParticipants() {
+    	List<Object> objs = getList("participants_facebookID");
     	ArrayList<String> a = new ArrayList<String>();
-    	for (ParseUser u : p) {
-    		a.add(u.getObjectId());
+    	
+    	if(objs == null || objs.size() == 0){
+    		return a;
     	}
-    	put("participants", a);
+    
+    	for (Object o : objs){
+    		a.add((String) o);
+    	}
+    	return a;
+    }
+    
+    public void setParticipants(List<ParseUser> p) {
+    	ArrayList<String> a_id = new ArrayList<String>();
+    	ArrayList<String> facebook_id = new ArrayList<String>();
+    	for (ParseUser u : p) {
+    		a_id.add(u.getObjectId());
+    		facebook_id.add(u.getString("fbId"));
+    	}
+    	put("participants", a_id);
+    	put("participants_facebookID", facebook_id);
     }
     
     public List<String> addParticipant(ParseUser u) {
     	addUnique("participants", u.getObjectId());
+    	addUnique("participants_facebookID", u.getString("fbId"));
     	return getParticipants();
     }
     
     public List<String> removeParticipant(ParseUser u){
     	removeAll("participants", Arrays.asList(u.getObjectId()));
+    	removeAll("participants_facebookID", Arrays.asList(u.getString("fbId")));
     	return getParticipants();
     }
 }
