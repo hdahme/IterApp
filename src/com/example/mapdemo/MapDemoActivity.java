@@ -3,6 +3,7 @@ package com.example.mapdemo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import android.animation.ObjectAnimator;
@@ -312,15 +313,15 @@ public class MapDemoActivity extends FragmentActivity implements
 	private void doBatchFacebookRequest() {
 
 	    String[] requestIds = {"5", "4", "706975076", "505680177"};
-	    ArrayList<String> testArray = new ArrayList<String>(Arrays.asList(requestIds));
+	    HashSet<String> testArray = new HashSet<String>(Arrays.asList(requestIds));
 	    
 	    ArrayList<String> participants = null;
 	    if(temporaryEvent!=null){
 	    	participants = temporaryEvent.getFacebookParticipants();
-	    	participants.addAll(testArray);
+	    	testArray.addAll(participants);
 	    }
 	    
-	    requestIds = participants.toArray(new String[participants.size()]);
+	    requestIds = testArray.toArray(new String[testArray.size()]);
 	    
 	    
     	facebookUserAdapter.clear();
