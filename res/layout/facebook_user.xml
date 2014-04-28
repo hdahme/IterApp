@@ -24,7 +24,7 @@
         android:layout_marginLeft="5dp"
         android:layout_toRightOf="@+id/ivFacebookUser"
         android:text="User Name"
-        android:textSize="12sp" />
+        android:textSize="20sp" />
 
 
 </RelativeLayout>
