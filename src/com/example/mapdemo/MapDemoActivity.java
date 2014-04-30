@@ -319,19 +319,21 @@ public class MapDemoActivity extends FragmentActivity implements
 	
 	private void doBatchFacebookRequest() {
 
-	    String[] requestIds = {"5", "4", "706975076", "505680177"};
-	    HashSet<String> testArray = new HashSet<String>(Arrays.asList(requestIds));
+	    String[] requestIds = null;	// = {"5", "4", "706975076", "505680177"};
+	    //HashSet<String> testArray = new HashSet<String>(Arrays.asList(requestIds));
 	    
 	    ArrayList<String> participants = null;
 	    if(temporaryEvent!=null){
 	    	participants = temporaryEvent.getFacebookParticipants();
-	    	testArray.addAll(participants);
+	    	//testArray.addAll(participants);
 	    }
 	    
-	    requestIds = testArray.toArray(new String[testArray.size()]);
-	    
+	    //requestIds = testArray.toArray(new String[testArray.size()]);
+
 	    String hostFacebookID = temporaryEvent.getFacebookOwner();
 
+	    if(participants != null && participants.size() > 0)
+	    	requestIds = participants.toArray(new String[participants.size()]);;
 	    
     	facebookUserAdapter.clear();
     	facebookHostAdapter.clear();
