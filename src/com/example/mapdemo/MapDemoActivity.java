@@ -377,11 +377,11 @@ public class MapDemoActivity extends FragmentActivity implements
 			if (!temporaryEvent.isActive()) {
 				temporaryEvent.setActive(true);
 				temporaryEvent.setOwner(currentUser);
-				startFetchingAttendanceChanges();
 				Toast.makeText(getBaseContext(), "Becoming Host", Toast.LENGTH_SHORT).show();
 			} else {
 				Toast.makeText(getBaseContext(), "Joining event", Toast.LENGTH_SHORT).show();
 			}
+			startFetchingAttendanceChanges();
 			temporaryEvent.addParticipant(currentUser);
 			temporaryEvent.saveInBackground(new SaveCallback(){
 				public void done(ParseException e) { fetchEventLocations(); }
@@ -413,6 +413,7 @@ public class MapDemoActivity extends FragmentActivity implements
 			});
 			currentEvent = null;
 			hideEventInProgress();
+			stopFetchingAttendanceChanges();
 			ParseUser.getCurrentUser().put("currentEvent", "");
 	        ParseUser.getCurrentUser().saveInBackground();
 	        
