@@ -93,7 +93,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
-                android:layout_below="@+id/tvHostedBy" />
+                android:layout_below="@+id/tvHostedBy"
+                android:minHeight="40dp" />
 
             <Button
                 android:id="@+id/btnNegative"
@@ -138,8 +139,11 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/tvSlideEventDescription"
-                android:text="Members:"
-                android:textSize="20sp" />
+                android:gravity="center"
+                android:text="Members"
+                android:textColor="#074035"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
         </RelativeLayout>
         

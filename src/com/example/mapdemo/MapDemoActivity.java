@@ -332,43 +332,44 @@ public class MapDemoActivity extends FragmentActivity implements
 
 	    String hostFacebookID = temporaryEvent.getFacebookOwner();
 
-	    if(participants != null && participants.size() > 0)
+	    if(participants != null && participants.size() > 0){	    	
 	    	requestIds = participants.toArray(new String[participants.size()]);;
-	    
+	    }
     	facebookUserAdapter.clear();
     	facebookHostAdapter.clear();
     	
-    	if(hostFacebookID != ""){
-	    RequestBatch requestHost = new RequestBatch();
-	    requestHost.add(new Request(Session.getActiveSession(), 
-	    		hostFacebookID, null, null, new Request.Callback() {
-	            public void onCompleted(Response response) {
-	                GraphObject graphObject = response.getGraphObject();               
-	                if (graphObject != null) {
-	                	facebookHostAdapter.add(graphObject);
-	                }	   
-	            }
-	        }));
-
-	    requestHost.executeAsync();
+    	if(hostFacebookID != "" && participants != null && participants.size() > 0){
+		    RequestBatch requestHost = new RequestBatch();
+		    requestHost.add(new Request(Session.getActiveSession(), 
+		    		hostFacebookID, null, null, new Request.Callback() {
+		            public void onCompleted(Response response) {
+		                GraphObject graphObject = response.getGraphObject();               
+		                if (graphObject != null) {
+		                	facebookHostAdapter.add(graphObject);
+		                }	   
+		            }
+		        }));
+	
+		    requestHost.executeAsync();
     	}
 	    
     	
     	
-    	
-	    RequestBatch requestBatch = new RequestBatch();
-	    for (final String requestId : requestIds) {
-	        requestBatch.add(new Request(Session.getActiveSession(), 
-	                requestId, null, null, new Request.Callback() {
-	            public void onCompleted(Response response) {
-	                GraphObject graphObject = response.getGraphObject();               
-	                if (graphObject != null) {
-	                	facebookUserAdapter.add(graphObject);
-	                }	   
-	            }
-	        }));
-	    }
-	    requestBatch.executeAsync();
+    	if(participants != null && participants.size() > 0){
+		    RequestBatch requestBatch = new RequestBatch();
+		    for (final String requestId : requestIds) {
+		        requestBatch.add(new Request(Session.getActiveSession(), 
+		                requestId, null, null, new Request.Callback() {
+		            public void onCompleted(Response response) {
+		                GraphObject graphObject = response.getGraphObject();               
+		                if (graphObject != null) {
+		                	facebookUserAdapter.add(graphObject);
+		                }	   
+		            }
+		        }));
+		    }
+		    requestBatch.executeAsync();
+    	}
 	}
 
 	public void onPositiveButtonPress(View v) {
@@ -532,11 +533,16 @@ public class MapDemoActivity extends FragmentActivity implements
 	// Refresh the current event, looking for attendance changes. 
 	public void fetchAttendanceChanges() {
 		Log.d("fbId", "fetching attendees");
+		if(currentEvent==null)
+			return;
 		final ArrayList<String> oldParticipants = currentEvent.getParticipants();
 		ParseQuery<Event> query = ParseQuery.getQuery(Event.class);
 		query.whereEqualTo("objectId", currentEvent.getObjectId());
 		query.findInBackground(new FindCallback<Event>() {
 			public void done(List<Event> events, ParseException e) {
+				if(events== null || events.size() < 1)
+					return;
+				
 				currentEvent = events.get(0);
 				
 				// No changes
