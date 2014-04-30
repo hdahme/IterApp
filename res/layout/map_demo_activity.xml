@@ -87,15 +87,13 @@
                 android:layout_below="@+id/tvSlideEventTitle"
                 android:text="@string/hosted_by" />
 
-            <TextView
-                android:id="@+id/tvSlideHost"
-                style="@style/DetailTextView"
+            <ListView
+                android:id="@+id/lvSlideHost"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
-                android:layout_below="@+id/tvHostedBy"
-                android:text="" />
+                android:layout_below="@+id/tvHostedBy" />
 
             <Button
                 android:id="@+id/btnNegative"
@@ -119,9 +117,9 @@
                 style="@style/DetailTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/tvSlideHost"
+                android:layout_alignLeft="@+id/lvSlideHost"
                 android:layout_alignParentRight="true"
-                android:layout_below="@+id/tvSlideHost"/>
+                android:layout_below="@+id/lvSlideHost" />
 
             <ListView
                 android:id="@+id/lvFacebookList"
@@ -132,6 +130,15 @@
                 android:layout_centerHorizontal="true" >
 
             </ListView>
+
+            <TextView
+                android:id="@+id/tvMembersText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/lvFacebookList"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:text="Members" />
 
         </RelativeLayout>
         

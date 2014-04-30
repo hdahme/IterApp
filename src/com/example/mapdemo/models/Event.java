@@ -51,7 +51,16 @@ public class Event extends ParseObject implements Serializable{
 
     public void setOwner(ParseUser user) {
         put("owner", user);
+        String id = user.getString("fbId");
+        put("facebookOwner", id);
     }
+    
+    
+    public String getFacebookOwner() {
+        return getString("facebookOwner");
+    }
+
+
 
     public String getTitle() {
         return getString("title");

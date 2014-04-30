@@ -85,12 +85,13 @@ public class MapDemoActivity extends FragmentActivity implements
 	private Button negativeButton;
 	private TextView slideEventTitle;
 	private TextView slideEventDescription;
-	private TextView slideHost;
+	private ListView slideHost;
 	private ListView lvFacebookList;
 	private TextView slideAttendeeCount;
 	private TextView eventInProgress;
 	private TextView notificationArea;
 	private FacebookUsersAdapter facebookUserAdapter;
+	private FacebookUsersAdapter facebookHostAdapter;
 	
 	// Only makes sense to fetch as often as they're sent
 	private int fetchEventInterval = (int)GPSTracking.MIN_TIME_BW_UPDATES; 
@@ -254,7 +255,7 @@ public class MapDemoActivity extends FragmentActivity implements
 		slideEventTitle = (TextView)findViewById(R.id.tvSlideEventTitle);
 		lvFacebookList = (ListView)findViewById(R.id.lvFacebookList);
 		slideEventDescription = (TextView)findViewById(R.id.tvSlideEventDescription);
-		slideHost = (TextView)findViewById(R.id.tvSlideHost);
+		slideHost = (ListView)findViewById(R.id.lvSlideHost);
 		slideAttendeeCount = (TextView)findViewById(R.id.tvSlideAttendeeCount);
 		eventInProgress = (TextView)findViewById(R.id.tvEventInProgress);
 		eventInProgress.setAlpha(0f);
@@ -271,8 +272,12 @@ public class MapDemoActivity extends FragmentActivity implements
 		slidingLayer.setCloseOnTapEnabled(false);
 		
         ArrayList<GraphObject> arrayFB = new ArrayList<GraphObject>();
+        ArrayList<GraphObject> arrayFBHost = new ArrayList<GraphObject>();
         facebookUserAdapter = new FacebookUsersAdapter(this, arrayFB);
-        lvFacebookList.setAdapter(facebookUserAdapter);
+        facebookHostAdapter = new FacebookUsersAdapter(this, arrayFBHost);
+        
+        lvFacebookList.setAdapter(facebookUserAdapter);                
+        slideHost.setAdapter(facebookHostAdapter);
 
 	}
 	
@@ -296,7 +301,9 @@ public class MapDemoActivity extends FragmentActivity implements
 		} else {
 		    slideAttendeeCount.setText(numParticipants + " Attendees");
 		}
-		slideHost.setText(temporaryUser.getString("firstName")+" "+temporaryUser.getString("lastName"));
+		facebookUserAdapter.clear();
+		facebookHostAdapter.clear();
+		//facebookUserAdapter.add(new GraphObject());
 		slideEventDescription.setText(temporaryEvent.getDescription());
 		slideEventTitle.setText(temporaryEvent.getTitle());
 		
@@ -323,8 +330,30 @@ public class MapDemoActivity extends FragmentActivity implements
 	    
 	    requestIds = testArray.toArray(new String[testArray.size()]);
 	    
+	    String hostFacebookID = temporaryEvent.getFacebookOwner();
+
 	    
     	facebookUserAdapter.clear();
+    	facebookHostAdapter.clear();
+    	
+    	if(hostFacebookID != ""){
+	    RequestBatch requestHost = new RequestBatch();
+	    requestHost.add(new Request(Session.getActiveSession(), 
+	    		hostFacebookID, null, null, new Request.Callback() {
+	            public void onCompleted(Response response) {
+	                GraphObject graphObject = response.getGraphObject();               
+	                if (graphObject != null) {
+	                	facebookHostAdapter.add(graphObject);
+	                }	   
+	            }
+	        }));
+
+	    requestHost.executeAsync();
+    	}
+	    
+    	
+    	
+    	
 	    RequestBatch requestBatch = new RequestBatch();
 	    for (final String requestId : requestIds) {
 	        requestBatch.add(new Request(Session.getActiveSession(), 
