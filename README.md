@@ -2,9 +2,9 @@
 
 ## What is IterApp?
 Many apps make scheduling and inviting coworkers and friends to events easier.
-However, very few are able to handle events that travel. IterApp addresse this
+However, very few are able to handle events that travel. IterApp addresses this
 problem by allowing you to find an event that is in progress and to track the
-location of an event as it progresses.
+location of an event as it happens.
 
 ## Dependencies
 Building IterApp from source requires a number of third-party libraries:
