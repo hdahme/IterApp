@@ -10,7 +10,7 @@
 
     <fragment
         android:id="@+id/fragmentEventsList"
-        android:name="com.example.mapdemo.fragments.EventsListFragment"
+        android:name="com.iterapp.fragments.EventsListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
