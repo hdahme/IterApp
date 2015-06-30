@@ -18,5 +18,3 @@ Building IterApp from source requires a number of third-party libraries:
 * [Harrison Dahme](http://www.github.com/hdahme)
 * [Declan Mungovan](http://www.github.com/mungovan)
 * [Matt Johnson](http://www.github.com/mattyjams)
-* 
-
